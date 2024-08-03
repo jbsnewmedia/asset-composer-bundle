@@ -1,0 +1,8 @@
+# Basis for core and plugin code quality
+parameters:
+    paths:
+        - src
+    bootstrapFiles:
+        - vendor-bin/phpstan/vendor/autoload.php
+    level: max
+

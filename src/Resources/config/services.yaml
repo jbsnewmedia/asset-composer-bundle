@@ -1,0 +1,23 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    JBSNewMedia\AssetComposerBundle\:
+        resource: '../../'
+        exclude:
+            - '../../DependencyInjection/'
+            - '../../Entity/'
+            - '../../Kernel.php'
+        tags: [ 'controller.service_arguments' ]
+
+    JBSNewMedia\AssetComposerBundle\Service\AssetComposer:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $router : '@router'
+            $paths: '%asset_composer.paths%'
+
+    JBSNewMedia\AssetComposerBundle\Twig\AssetComposerExtension:
+
+
