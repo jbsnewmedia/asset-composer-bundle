@@ -5,7 +5,7 @@
         "phpstan/phpstan-doctrine": "^1.4",
         "phpstan/phpstan-phpunit": "^1.4",
         "phpstan/phpstan-symfony": "^1.4",
-        "jbs-newmedia/symfony-web-pack": "^1.0"
+        "jbsnewmedia/symfony-web-pack": "^1.0"
     },
     "config": {
         "allow-plugins": {
