@@ -19,9 +19,7 @@ class AssetComposerExtension extends Extension implements PrependExtensionInterf
 
         $container->setParameter('asset_composer.paths', $config['paths'] ?? []);
 
-        $loader = new YamlFileLoader(
-            $container,
-            new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.yaml');
     }
 
@@ -33,7 +31,7 @@ class AssetComposerExtension extends Extension implements PrependExtensionInterf
         }
 
         $filePath = $projectDir.'/config/routes/asset_composer.yaml';
-        $bundleFile = __DIR__.'/../Resources/config/routes.yaml';
+        $bundleFile = __DIR__.'/../../config/routes.yaml';
         if (!file_exists($filePath)) {
             file_put_contents($filePath, file_get_contents($bundleFile));
         }
