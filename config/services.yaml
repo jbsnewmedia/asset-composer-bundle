@@ -12,6 +12,9 @@ services:
             - '../../Kernel.php'
         tags: [ 'controller.service_arguments' ]
 
+    JBSNewMedia\AssetComposerBundle\Controller\AssetComposerController:
+        tags: ['controller.service_arguments']
+
     JBSNewMedia\AssetComposerBundle\Service\AssetComposer:
         arguments:
             $projectDir: '%kernel.project_dir%'
