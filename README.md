@@ -81,16 +81,15 @@ By following these steps, you can seamlessly manage and include assets from the 
 
 ### File Structure Overview
 
+- **config**
+  - `routes.yaml`: Routing configuration. (moved to `config/routes/asset_composer.yaml`)
+  - `services.yaml`: Symfony service configuration.
 - **src**
   - **Controller**
     - `AssetComposerController.php`: Controller to manage asset routes.
   - **DependencyInjection**
     - `AssetComposerExtension.php`: Dependency injection configuration.
     - `Configuration.php`: Configuration settings for the bundle.
-  - **Resources**
-    - **config**
-    - `routes.yaml`: Routing configuration. (moved to `config/routes/asset_composer.yaml`)
-    - `services.yaml`: Symfony service configuration.
   - **Service**
     - `AssetComposer.php`: Core functionality for handling assets.
   - **Twig**
@@ -115,9 +114,25 @@ Ensure your application's autoloader is updated by running:
 composer dump-autoload
 ```
 
-### assetcomposer.json for other libraries
+## Using assetcomposer.json in other libraries
 
 The `assetcomposer.json` file allows you to specify which files should be included in the project. Using the `files` and `files-dev` keys, you can define which files are allowed to be loaded in the production and development environments, respectively. This JSON file can be included by other libraries and tools to ensure that only the desired assets are used.
+
+The `assetcomposer.json` file should be placed in the root directory of the library or tool, where the `composer.json` file is also located, and it should have the following structure:
+
+```json
+{
+    "name": "Library name",
+    "files": [
+        "dist/css/library.css",
+        "dist/js/library.js"
+    ],
+    "files-dev": [
+        "src/css/library.css",
+        "src/js/library.js"
+    ]
+}
+```
 
 ## License
 
@@ -137,6 +152,6 @@ Before submitting your pull request, please ensure your changes are well-documen
 
 ## Contact
 
-If you have any questions, feature requests, or issues, please open an issue on our [GitHub repository](https://github.com/jbs-newmedia/asset-composer-bundle) or submit a pull request.
+If you have any questions, feature requests, or issues, please open an issue on our [GitHub repository](https://github.com/jbsnewmedia/asset-composer-bundle) or submit a pull request.
 
 We'd love to hear from you!
