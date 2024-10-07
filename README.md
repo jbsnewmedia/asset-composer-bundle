@@ -115,6 +115,10 @@ Ensure your application's autoloader is updated by running:
 composer dump-autoload
 ```
 
+### assetcomposer.json for other libraries
+
+The `assetcomposer.json` file allows you to specify which files should be included in the project. Using the `files` and `files-dev` keys, you can define which files are allowed to be loaded in the production and development environments, respectively. This JSON file can be included by other libraries and tools to ensure that only the desired assets are used.
+
 ## License
 
 This bundle is licensed under the MIT license. See the [LICENSE](LICENSE) file for more details.

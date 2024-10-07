@@ -48,6 +48,37 @@ class AssetComposer
             throw new BadRequestHttpException('vendor directory traversal detected');
         }
 
+        $vendorProtectFile = $vendorDir.'assetscomposer.json';
+        if (file_exists($vendorProtectFile)) {
+            $vendorProtectContent = file_get_contents($vendorProtectFile);
+            if (false === $vendorProtectContent) {
+                throw new BadRequestHttpException('Unable to read the asset composer file');
+            }
+
+            $vendorProtectJson = json_decode($vendorProtectContent, true);
+            if (!is_array($vendorProtectJson)) {
+                throw new BadRequestHttpException('Invalid asset composer file');
+            }
+
+            if ('prod' === $_SERVER['APP_ENV']) {
+                if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files']))) {
+                    throw new BadRequestHttpException('Invalid asset composer file');
+                }
+
+                if (!in_array($asset, $vendorProtectJson['files'], true)) {
+                    throw new BadRequestHttpException('Asset not allowed');
+                }
+            } else {
+                if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files'])) || (!isset($vendorProtectJson['files-dev'])) || (!is_array($vendorProtectJson['files-dev']))) {
+                    throw new BadRequestHttpException('Invalid asset composer file');
+                }
+
+                if ((!in_array($asset, $vendorProtectJson['files'], true)) && (!in_array($asset, $vendorProtectJson['files-dev'], true))) {
+                    throw new BadRequestHttpException('Asset not allowed');
+                }
+            }
+        }
+
         $fileType = pathinfo($vendorFile, PATHINFO_EXTENSION);
         $content = file_get_contents($vendorFile);
         if (false === $content) {
