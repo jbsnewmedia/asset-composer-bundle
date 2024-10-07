@@ -60,12 +60,22 @@ class AssetComposer
                 throw new BadRequestHttpException('Invalid asset composer file');
             }
 
-            if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files']))) {
-                throw new BadRequestHttpException('Invalid asset composer file');
-            }
+            if ('prod' === $_SERVER['APP_ENV']) {
+                if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files']))) {
+                    throw new BadRequestHttpException('Invalid asset composer file');
+                }
 
-            if (!in_array($asset, $vendorProtectJson['files'], true)) {
-                throw new BadRequestHttpException('Asset not allowed');
+                if (!in_array($asset, $vendorProtectJson['files'], true)) {
+                    throw new BadRequestHttpException('Asset not allowed');
+                }
+            } else {
+                if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files'])) || (!isset($vendorProtectJson['files-dev'])) || (!is_array($vendorProtectJson['files-dev']))) {
+                    throw new BadRequestHttpException('Invalid asset composer file');
+                }
+
+                if ((!in_array($asset, $vendorProtectJson['files'], true)) && (!in_array($asset, $vendorProtectJson['files-dev'], true))) {
+                    throw new BadRequestHttpException('Asset not allowed');
+                }
             }
         }
 
