@@ -59,7 +59,7 @@ class AssetComposerExtension extends AbstractExtension
 
         switch ($assetInfo['extension']) {
             case 'css':
-                if (!isset($this->assets[$position]['css'][$assetFilename])) {
+                if (isset($this->assets[$position]['css'][$assetFilename])) {
                     unset($this->assets[$position]['css'][$assetFilename]);
                 }
                 break;
@@ -79,8 +79,8 @@ class AssetComposerExtension extends AbstractExtension
         if ((isset($this->assets[$position])) && (isset($this->assets[$position]['css'])) && ([] !== $this->assets[$position]['css'])) {
             foreach ($this->assets[$position]['css'] as $assetFilename) {
                 $stylesheets .= '<link rel="stylesheet" href="'.$this->assetComposer->getAssetFileName(
-                    $assetFilename
-                ).'">';
+                        $assetFilename
+                    ).'">';
             }
         }
 
@@ -93,8 +93,8 @@ class AssetComposerExtension extends AbstractExtension
         if ((isset($this->assets[$position])) && (isset($this->assets[$position]['js'])) && ([] !== $this->assets[$position]['js'])) {
             foreach ($this->assets[$position]['js'] as $assetFilename) {
                 $javascripts .= '<script src="'.$this->assetComposer->getAssetFileName(
-                    $assetFilename
-                ).'"></script>';
+                        $assetFilename
+                    ).'"></script>';
             }
         }
 
