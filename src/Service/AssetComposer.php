@@ -8,9 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-
 class AssetComposer
 {
+    /**
+     * @var array<string, string>
+     */
     protected array $contentTypes = [];
 
     /**
@@ -22,8 +24,7 @@ class AssetComposer
         protected string $environment,
         protected string $appSecret,
         protected array $paths = [],
-    )
-    {
+    ) {
         if ([] === $this->paths) {
             $this->paths = [
                 '/vendor/',
@@ -90,7 +91,7 @@ class AssetComposer
         $vendorFile = $vendorDir.$asset;
         $realVendorFilePath = realpath($vendorFile);
         if (false === $realVendorFilePath || !str_starts_with($realVendorFilePath, $vendorDir)) {
-            throw new BadRequestHttpExceptionBadRequestHttpException('Vendor directory traversal detected');
+            throw new BadRequestHttpException('Vendor directory traversal detected');
         }
 
         $vendorProtectFile = $vendorDir.'assetscomposer.json';
@@ -129,8 +130,8 @@ class AssetComposer
             throw new BadRequestHttpException('Unable to get the file modification time');
         }
 
-        $baseUrlPart = $namespace . '/' . $package . '/' . $asset;
-        $vNew = md5($baseUrlPart . '#' . $this->appSecret . '#' . (string) $fileMTime);
+        $baseUrlPart = $namespace.'/'.$package.'/'.$asset;
+        $vNew = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
         if (('' === $v) || ($v !== $vNew)) {
             throw new BadRequestHttpException('Invalid asset version');
         }
@@ -183,7 +184,7 @@ class AssetComposer
             throw new BadRequestHttpException('Asset not found ('.str_replace($this->projectDir.'/', '', $vendorFile).')');
         }
 
-        $baseUrlPart = $assetParts[0] .'/'. $assetParts[1] .'/' . implode('/', array_slice($assetParts, 2));
+        $baseUrlPart = $assetParts[0].'/'.$assetParts[1].'/'.implode('/', array_slice($assetParts, 2));
         $baseUrl = $this->router->generate('jbs_new_media_assets_composer', [
             'namespace' => $assetParts[0],
             'package' => $assetParts[1],
@@ -195,6 +196,6 @@ class AssetComposer
             throw new BadRequestHttpException('Unable to get the file modification time');
         }
 
-        return $baseUrl.'?v='.md5($baseUrlPart.'#'.$this->appSecret.'#'.(string)$fileMTime);
+        return $baseUrl.'?v='.md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
     }
 }
