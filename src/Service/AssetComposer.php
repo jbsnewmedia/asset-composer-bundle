@@ -146,6 +146,8 @@ class AssetComposer
             throw new BadRequestHttpException('Invalid content type');
         }
 
+        $content = $this->setUrlVersions($content, $this->projectDir.$path, $vendorFile, $baseUrlPart);
+
         $response = new Response($content);
         $response->headers->set('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime('+10 years')));
         $response->headers->set('Cache-Control', 'max-age=315360000, public');
@@ -154,6 +156,39 @@ class AssetComposer
         $response->headers->set('Content-Type', $this->contentTypes[$fileType]);
 
         return $response;
+    }
+
+    protected function setUrlVersions(string $content, string $vendorDir, string $vendorFile, string $baseUrlPart): string
+    {
+        $urlRegex = '/url\((["\']?)([^"\')]+)(["\']?)\)/i';
+        $matches = [];
+        preg_match_all($urlRegex, $content, $matches, PREG_SET_ORDER);
+        $dirname = dirname(realpath($vendorFile)).DIRECTORY_SEPARATOR;
+        $matchesNew = [];
+        foreach ($matches as $match) {
+            $url = $match[2];
+
+            if (str_starts_with($url, 'data:') || str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                continue;
+            }
+
+            if (!isset($matchesNew[$url])) {
+                $matchesNew[$url] = $match;
+            }
+        }
+
+        foreach ($matchesNew as $match) {
+            $url = $match[2];
+            $file = realpath($dirname.$url);
+            $baseUrlPart = str_replace($vendorDir, '', $file);
+            $mtime = filemtime($file);
+            $v = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string)$mtime);
+            $cleanUrl = $match[0];
+            $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
+            $content = str_replace($cleanUrl, $newUrl, $content);
+        }
+
+        return $content;
     }
 
     public function getAssetFileName(string $asset): string
