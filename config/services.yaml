@@ -4,29 +4,23 @@ services:
         autoconfigure: true
         public: false
 
+    # Register all services in the bundle namespace
     JBSNewMedia\AssetComposerBundle\:
-        resource: '../../'
+        resource: '../src/'
         exclude:
-            - '../../DependencyInjection/'
-            - '../../Entity/'
-            - '../../Kernel.php'
-        tags: [ 'controller.service_arguments' ]
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
 
-    JBSNewMedia\AssetComposerBundle\Controller\AssetComposerController:
-        tags: ['controller.service_arguments']
-
+    # Configure the AssetComposer service with specific arguments
     JBSNewMedia\AssetComposerBundle\Service\AssetComposer:
         arguments:
             $projectDir: '%kernel.project_dir%'
-            $router : '@router'
+            $router: '@router'
             $environment: '%kernel.environment%'
             $appSecret: '%kernel.secret%'
             $paths: '%asset_composer.paths%'
 
-    JBSNewMedia\AssetComposerBundle\Twig\AssetComposerExtension:
-        arguments:
-            $assetComposer: '@JBSNewMedia\AssetComposerBundle\Service\AssetComposer'
-        tags:
-            - { name: 'twig.extension' }
-
-
+    # The Twig extension is autoconfigured, so the tag is not needed
+    # but we keep the explicit service definition for clarity
+    JBSNewMedia\AssetComposerBundle\Twig\AssetComposerExtension: ~
