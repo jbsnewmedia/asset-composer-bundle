@@ -11,11 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AssetComposerController extends AbstractController
 {
-    private AssetComposer $assetComposer;
-
-    public function __construct(AssetComposer $assetComposer)
+    public function __construct(private AssetComposer $assetComposer)
     {
-        $this->assetComposer = $assetComposer;
     }
 
     public function getAsset(

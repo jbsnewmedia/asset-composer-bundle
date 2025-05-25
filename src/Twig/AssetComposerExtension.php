@@ -10,12 +10,12 @@ use Twig\Markup;
 use Twig\TwigFunction;
 
 /**
- * Twig extension for managing and rendering assets
+ * Twig extension for managing and rendering assets.
  */
 class AssetComposerExtension extends AbstractExtension
 {
     /**
-     * Stores assets organized by position and type
+     * Stores assets organized by position and type.
      *
      * @var array<string, array<string, array<string, string>>>
      */
@@ -25,9 +25,6 @@ class AssetComposerExtension extends AbstractExtension
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getFunctions(): array
     {
         return [
@@ -40,7 +37,7 @@ class AssetComposerExtension extends AbstractExtension
     }
 
     /**
-     * Add an asset to be managed by the asset composer
+     * Add an asset to be managed by the asset composer.
      *
      * @throws \InvalidArgumentException If the asset type is invalid
      */
@@ -53,9 +50,9 @@ class AssetComposerExtension extends AbstractExtension
 
         $extension = strtolower($assetInfo['extension']);
 
-        if ($extension === 'css') {
+        if ('css' === $extension) {
             $this->assets[$position]['css'][$assetFilename] = $assetFilename;
-        } elseif ($extension === 'js') {
+        } elseif ('js' === $extension) {
             $this->assets[$position]['js'][$assetFilename] = $assetFilename;
         } else {
             throw new \InvalidArgumentException(sprintf('Invalid asset type: %s', $extension));
@@ -63,7 +60,7 @@ class AssetComposerExtension extends AbstractExtension
     }
 
     /**
-     * Remove an asset from being managed by the asset composer
+     * Remove an asset from being managed by the asset composer.
      *
      * @throws \InvalidArgumentException If the asset type is invalid
      */
@@ -76,9 +73,9 @@ class AssetComposerExtension extends AbstractExtension
 
         $extension = strtolower($assetInfo['extension']);
 
-        if ($extension === 'css') {
+        if ('css' === $extension) {
             unset($this->assets[$position]['css'][$assetFilename]);
-        } elseif ($extension === 'js') {
+        } elseif ('js' === $extension) {
             unset($this->assets[$position]['js'][$assetFilename]);
         } else {
             throw new \InvalidArgumentException(sprintf('Invalid asset type: %s', $extension));
@@ -86,7 +83,7 @@ class AssetComposerExtension extends AbstractExtension
     }
 
     /**
-     * Render stylesheet link tags for the given position
+     * Render stylesheet link tags for the given position.
      */
     public function renderStylesheets(string $position = 'all'): Markup
     {
@@ -105,7 +102,7 @@ class AssetComposerExtension extends AbstractExtension
     }
 
     /**
-     * Render JavaScript script tags for the given position
+     * Render JavaScript script tags for the given position.
      */
     public function renderJavascripts(string $position = 'all'): Markup
     {
@@ -124,7 +121,7 @@ class AssetComposerExtension extends AbstractExtension
     }
 
     /**
-     * Get the URL for an asset file with versioning
+     * Get the URL for an asset file with versioning.
      */
     public function getAssetComposerFile(string $assetFilename): string
     {

@@ -9,8 +9,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 class AssetComposerExtension extends Extension implements PrependExtensionInterface
 {
@@ -23,18 +23,24 @@ class AssetComposerExtension extends Extension implements PrependExtensionInterf
 
         $loader = new YamlFileLoader(
             $container,
-            new FileLocator(__DIR__ . '/../../config')
+            new FileLocator(__DIR__.'/../../config')
         );
         $loader->load('services.yaml');
     }
 
     public function prepend(ContainerBuilder $container): void
     {
-        $projectDir = $container->getParameter('kernel.project_dir');
+        $projectDirRaw = $container->getParameter('kernel.project_dir');
+
+        if (!is_string($projectDirRaw)) {
+            throw new \RuntimeException('Expected "kernel.project_dir" to be a string.');
+        }
+
+        $projectDir = $projectDirRaw;
 
         $filesystem = new Filesystem();
-        $targetPath = $projectDir . '/config/routes/asset_composer.yaml';
-        $sourcePath = __DIR__ . '/../../config/routes.yaml';
+        $targetPath = $projectDir.'/config/routes/asset_composer.yaml';
+        $sourcePath = __DIR__.'/../../config/routes.yaml';
 
         try {
             $targetDir = dirname($targetPath);
@@ -46,11 +52,7 @@ class AssetComposerExtension extends Extension implements PrependExtensionInterf
                 $filesystem->copy($sourcePath, $targetPath);
             }
         } catch (IOExceptionInterface $exception) {
-            throw new \RuntimeException(sprintf(
-                'An error occurred while creating the routes file at %s: %s',
-                $targetPath,
-                $exception->getMessage()
-            ));
+            throw new \RuntimeException(sprintf('An error occurred while creating the routes file at %s: %s', $targetPath, $exception->getMessage()));
         }
     }
 }
