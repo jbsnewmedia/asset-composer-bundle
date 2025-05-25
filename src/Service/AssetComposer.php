@@ -73,10 +73,13 @@ class AssetComposer
     public function getAssetFile(string $namespace, string $package, string $asset, string $v): Response
     {
         $vendorDir = '';
+        $currentPath = '';
+
         if (('app' === $namespace) && ('assets' === $package)) {
             $vendorDir = $this->projectDir.'/assets/';
         } else {
             foreach ($this->paths as $path) {
+                $currentPath = $path;
                 $vendorDir = $this->projectDir.$path.$namespace.'/'.$package.'/';
                 if (is_dir($vendorDir)) {
                     break;
@@ -90,7 +93,7 @@ class AssetComposer
 
         $vendorFile = $vendorDir.$asset;
         $realVendorFilePath = realpath($vendorFile);
-        if (false === $realVendorFilePath || !str_starts_with($realVendorFilePath, $vendorDir)) {
+        if (false === $realVendorFilePath || !str_starts_with($realVendorFilePath, realpath($vendorDir))) {
             throw new BadRequestHttpException('Vendor directory traversal detected');
         }
 
@@ -107,20 +110,27 @@ class AssetComposer
             }
 
             if ('prod' === $this->environment) {
-                if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files']))) {
-                    throw new BadRequestHttpException('Invalid asset composer file');
+                if (!isset($vendorProtectJson['files']) || !is_array($vendorProtectJson['files'])) {
+                    throw new BadRequestHttpException('Invalid asset composer file: missing files array');
                 }
 
                 if (!in_array($asset, $vendorProtectJson['files'], true)) {
-                    throw new BadRequestHttpException('Asset not allowed');
+                    throw new BadRequestHttpException('Asset not allowed in production environment');
                 }
             } else {
-                if ((!isset($vendorProtectJson['files'])) || (!is_array($vendorProtectJson['files'])) || (!isset($vendorProtectJson['files-dev'])) || (!is_array($vendorProtectJson['files-dev']))) {
-                    throw new BadRequestHttpException('Invalid asset composer file');
+                if (!isset($vendorProtectJson['files']) || !is_array($vendorProtectJson['files'])) {
+                    throw new BadRequestHttpException('Invalid asset composer file: missing files array');
                 }
 
-                if ((!in_array($asset, $vendorProtectJson['files'], true)) && (!in_array($asset, $vendorProtectJson['files-dev'], true))) {
-                    throw new BadRequestHttpException('Asset not allowed');
+                if (isset($vendorProtectJson['files-dev']) && is_array($vendorProtectJson['files-dev'])) {
+                    if (!in_array($asset, $vendorProtectJson['files'], true) &&
+                        !in_array($asset, $vendorProtectJson['files-dev'], true)) {
+                        throw new BadRequestHttpException('Asset not allowed in development environment');
+                    }
+                } else {
+                    if (!in_array($asset, $vendorProtectJson['files'], true)) {
+                        throw new BadRequestHttpException('Asset not allowed');
+                    }
                 }
             }
         }
@@ -146,7 +156,7 @@ class AssetComposer
             throw new BadRequestHttpException('Invalid content type');
         }
 
-        $content = $this->setUrlVersions($content, $this->projectDir.$path, $vendorFile, $baseUrlPart);
+        $content = $this->setUrlVersions($content, $this->projectDir.$currentPath, $vendorFile, $baseUrlPart);
 
         $response = new Response($content);
         $response->headers->set('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime('+10 years')));
@@ -158,39 +168,62 @@ class AssetComposer
         return $response;
     }
 
-    protected function setUrlVersions(string $content, string $vendorDir, string $vendorFile, string $baseUrlPart): string
+    /**
+     * Process CSS content to add version parameters to URLs
+     */
+    private function setUrlVersions(string $content, string $vendorDir, string $vendorFile, string $baseUrlPart): string
     {
         $urlRegex = '/url\((["\']?)([^"\')]+)(["\']?)\)/i';
         $matches = [];
         preg_match_all($urlRegex, $content, $matches, PREG_SET_ORDER);
-        $dirname = dirname(realpath($vendorFile)).DIRECTORY_SEPARATOR;
+
+        $dirname = dirname(realpath($vendorFile) ?: $vendorFile) . DIRECTORY_SEPARATOR;
         $matchesNew = [];
+
+        // First pass: collect unique URLs
         foreach ($matches as $match) {
             $url = $match[2];
 
-            if (str_starts_with($url, 'data:') || str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            // Skip data URLs and absolute URLs
+            if (str_starts_with($url, 'data:') ||
+                str_starts_with($url, 'http://') ||
+                str_starts_with($url, 'https://')) {
                 continue;
             }
 
+            // Store only unique URLs
             if (!isset($matchesNew[$url])) {
                 $matchesNew[$url] = $match;
             }
         }
 
+        // Second pass: process and replace URLs
         foreach ($matchesNew as $match) {
             $url = $match[2];
-            $file = realpath($dirname.$url);
+            $file = realpath($dirname . $url);
+
+            // Skip if file doesn't exist
+            if (false === $file || !file_exists($file)) {
+                continue;
+            }
+
             $baseUrlPart = str_replace($vendorDir, '', $file);
-            $mtime = filemtime($file);
-            $v = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string)$mtime);
+            $mtime = filemtime($file) ?: time();
+            $v = md5($baseUrlPart . '#' . $this->appSecret . '#' . (string)$mtime);
+
             $cleanUrl = $match[0];
-            $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
+            $newUrl = str_replace($url, $url . '?v=' . $v, $cleanUrl);
             $content = str_replace($cleanUrl, $newUrl, $content);
         }
 
         return $content;
     }
 
+    /**
+     * Get the URL for an asset file with versioning
+     *
+     * @throws BadRequestHttpException If the asset cannot be found or accessed
+     */
     public function getAssetFileName(string $asset): string
     {
         $assetParts = explode('/', $asset);
@@ -198,32 +231,54 @@ class AssetComposer
             throw new BadRequestHttpException('Asset not found (invalid asset path)');
         }
 
-        if (('app' === $assetParts[0]) && ('assets' === $assetParts[1])) {
-            $vendorFile = $this->projectDir.'/assets/'.implode('/', array_slice($assetParts, 2));
+        $namespace = $assetParts[0];
+        $package = $assetParts[1];
+        $assetPath = implode('/', array_slice($assetParts, 2));
+
+        // Handle app assets
+        if (('app' === $namespace) && ('assets' === $package)) {
+            $vendorFile = $this->projectDir . '/assets/' . $assetPath;
         } else {
+            // Search for the asset in configured paths
             $vendorFile = '';
+            $found = false;
+
             foreach ($this->paths as $path) {
-                $vendorFile = $this->projectDir.$path.$asset;
-                if (is_file($vendorFile)) {
+                $candidateFile = $this->projectDir . $path . $asset;
+                if (is_file($candidateFile)) {
+                    $vendorFile = $candidateFile;
+                    $found = true;
                     break;
                 }
             }
 
+            if (!$found) {
+                throw new BadRequestHttpException('Asset not found: ' . $asset);
+            }
+
+            // Security check to prevent directory traversal
             $realVendorFilePath = realpath($vendorFile);
-            if (false === $realVendorFilePath || !str_starts_with($realVendorFilePath, $this->projectDir)) {
-                throw new BadRequestHttpException('Asset not found ('.str_replace($this->projectDir.'/', '', $vendorFile).')');
+            $realProjectDir = realpath($this->projectDir);
+
+            if (false === $realVendorFilePath ||
+                false === $realProjectDir ||
+                !str_starts_with($realVendorFilePath, $realProjectDir)) {
+                throw new BadRequestHttpException('Security violation: attempted directory traversal');
             }
         }
 
+        // Final check that the file exists
         if (!file_exists($vendorFile)) {
-            throw new BadRequestHttpException('Asset not found ('.str_replace($this->projectDir.'/', '', $vendorFile).')');
+            throw new BadRequestHttpException('Asset file not found: ' .
+                str_replace($this->projectDir . '/', '', $vendorFile));
         }
 
-        $baseUrlPart = $assetParts[0].'/'.$assetParts[1].'/'.implode('/', array_slice($assetParts, 2));
+        // Generate the URL with version parameter
+        $baseUrlPart = $namespace . '/' . $package . '/' . $assetPath;
         $baseUrl = $this->router->generate('jbs_new_media_assets_composer', [
-            'namespace' => $assetParts[0],
-            'package' => $assetParts[1],
-            'asset' => implode('/', array_slice($assetParts, 2)),
+            'namespace' => $namespace,
+            'package' => $package,
+            'asset' => $assetPath,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $fileMTime = filemtime($vendorFile);
@@ -231,6 +286,6 @@ class AssetComposer
             throw new BadRequestHttpException('Unable to get the file modification time');
         }
 
-        return $baseUrl.'?v='.md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
+        return $baseUrl . '?v=' . md5($baseUrlPart . '#' . $this->appSecret . '#' . (string) $fileMTime);
     }
 }
