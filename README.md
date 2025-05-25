@@ -75,17 +75,20 @@ composer require avalynx/avalynx-alert
 ## 📁 File Structure
 
 ```
+config/
+├── routes.yaml
+├── services.yaml
 src/
 ├── Controller/
 │   └── AssetComposerController.php
 ├── DependencyInjection/
 │   ├── AssetComposerExtension.php
 │   └── Configuration.php
-├── Twig/
-│   └── AssetComposerExtension.php
 ├── Service/
 │   └── AssetComposer.php
-AssetComposerBundle.php
+├── Twig/
+│   └── AssetComposerExtension.php
+├── AssetComposerBundle.php
 ```
 
 ---
