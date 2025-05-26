@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AssetComposerController extends AbstractController
 {
-    public function __construct(private AssetComposer $assetComposer)
+    public function __construct(private readonly AssetComposer $assetComposer)
     {
     }
 

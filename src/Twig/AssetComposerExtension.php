@@ -21,18 +21,18 @@ class AssetComposerExtension extends AbstractExtension
      */
     private array $assets = [];
 
-    public function __construct(private AssetComposer $assetComposer)
+    public function __construct(private readonly AssetComposer $assetComposer)
     {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('addAssetComposer', [$this, 'addAssetComposer']),
-            new TwigFunction('removeAssetComposer', [$this, 'removeAssetComposer']),
-            new TwigFunction('renderAssetComposerStylesheets', [$this, 'renderStylesheets']),
-            new TwigFunction('renderAssetComposerJavascripts', [$this, 'renderJavascripts']),
-            new TwigFunction('getAssetComposerFile', [$this, 'getAssetComposerFile']),
+            new TwigFunction('addAssetComposer', $this->addAssetComposer(...)),
+            new TwigFunction('removeAssetComposer', $this->removeAssetComposer(...)),
+            new TwigFunction('renderAssetComposerStylesheets', $this->renderStylesheets(...)),
+            new TwigFunction('renderAssetComposerJavascripts', $this->renderJavascripts(...)),
+            new TwigFunction('getAssetComposerFile', $this->getAssetComposerFile(...)),
         ];
     }
 
