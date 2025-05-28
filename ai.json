@@ -1,0 +1,28 @@
+{
+  "ignoreExtensions": [
+  ],
+  "ignoreFolders": [
+    ".git",
+    ".idea",
+    "examples",
+    "vendor",
+    "vendor-bin"
+  ],
+  "ignoreFilenames": [
+    ".editorconfig",
+    ".gitattributes",
+    ".gitignore",
+    ".php-cs-fixer.cache",
+    ".php-cs-fixer.dist.php",
+    "ai.json",
+    "composer.lock",
+    "README.dev.md",
+    "phpstan-global.neon",
+    "phpstan.neon",
+    "rector.php",
+    "ai.txt",
+    "LICENSE",
+    ".env.local",
+    "phpunit.xml"
+  ]
+}
