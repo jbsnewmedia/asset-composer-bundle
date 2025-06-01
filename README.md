@@ -14,8 +14,8 @@
 
 ## ⚙️ Requirements
 
-- PHP 8.0 or higher
-- Symfony Framework 6.0 or 7.0
+- PHP 8.1 or higher
+- Symfony Framework 6.4 or 7.0
 
 ---
 
@@ -29,7 +29,7 @@ composer require jbsnewmedia/asset-composer-bundle
 
 ---
 
-## 🛠 Usage
+## 📋 Usage
 
 ### 1. Install Asset Packages via Composer
 
