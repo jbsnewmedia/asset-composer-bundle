@@ -1,28 +1,29 @@
 {
   "ignoreExtensions": [
+    "cache"
   ],
   "ignoreFolders": [
     ".git",
     ".idea",
     "examples",
     "vendor",
-    "vendor-bin"
+    "vendor-bin/ecs/vendor",
+    "vendor-bin/phpstan/vendor",
+    "vendor-bin/phpunit/vendor",
+    "vendor-bin/rector/vendor",
+    ".phpunit.cache"
   ],
   "ignoreFilenames": [
     ".editorconfig",
     ".gitattributes",
     ".gitignore",
     ".php-cs-fixer.cache",
-    ".php-cs-fixer.dist.php",
     "ai.json",
     "composer.lock",
     "README.dev.md",
-    "phpstan-global.neon",
     "phpstan.neon",
-    "rector.php",
     "ai.txt",
     "LICENSE",
-    ".env.local",
-    "phpunit.xml"
+    ".env.local"
   ]
 }
