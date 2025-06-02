@@ -61,6 +61,18 @@
     "bin-phpstan-v": [
       "vendor-bin/phpstan/vendor/bin/phpstan -V"
     ],
+    "bin-phpunit-install": [
+      "composer bin phpunit install"
+    ],
+    "bin-phpunit-update": [
+      "composer bin phpunit update"
+    ],
+    "bin-phpunit": [
+      "vendor-bin/phpstan/vendor/bin/phpunit"
+    ],
+    "bin-phpunit-v": [
+      "vendor-bin/phpstan/vendor/bin/phpunit --version"
+    ],
     "bin-rector-install": [
       "composer bin rector install"
     ],
