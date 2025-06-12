@@ -5,12 +5,13 @@
   "ignoreFolders": [
     ".git",
     ".idea",
-    "examples",
-    "vendor",
-    "vendor-bin/ecs/vendor",
-    "vendor-bin/phpstan/vendor",
-    "vendor-bin/phpunit/vendor",
-    "vendor-bin/rector/vendor",
+    "sexamples",
+    "/var",
+    "/vendor",
+    "/vendor-bin/ecs/vendor",
+    "/vendor-bin/phpstan/vendor",
+    "/vendor-bin/phpunit/vendor",
+    "/vendor-bin/rector/vendor",
     ".phpunit.cache"
   ],
   "ignoreFilenames": [
