@@ -1,0 +1,10 @@
+{
+  "name": "test-package",
+  "files": [
+    "asset.css",
+    "asset.js"
+  ],
+  "files-dev": [
+    "dev-asset.css"
+  ]
+}
