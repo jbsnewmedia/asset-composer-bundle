@@ -91,7 +91,16 @@ class AssetComposer
             throw new BadRequestHttpException('Vendor directory not found');
         }
 
+        if (str_contains($asset, '..')) {
+            throw new BadRequestHttpException('Vendor directory traversal detected');
+        }
+
         $vendorFile = $vendorDir.$asset;
+
+        if (!file_exists($vendorFile)) {
+            throw new BadRequestHttpException('Asset file not found');
+        }
+
         $realVendorFilePath = realpath($vendorFile);
         $realVendorDir = realpath($vendorDir);
         if (
@@ -173,11 +182,12 @@ class AssetComposer
         return $response;
     }
 
-    /**
-     * Process CSS content to add version parameters to URLs.
-     */
     private function setUrlVersions(string $content, string $vendorDir, string $vendorFile, string $baseUrlPart): string
     {
+        if (!str_ends_with($vendorFile, '.css') && !str_ends_with($vendorFile, '.js')) {
+            return $content;
+        }
+
         $urlRegex = '/url\((["\']?)([^"\')]+)(["\']?)\)/i';
         $matches = [];
         preg_match_all($urlRegex, $content, $matches, PREG_SET_ORDER);
@@ -185,35 +195,32 @@ class AssetComposer
         $dirname = dirname(realpath($vendorFile) ?: $vendorFile).DIRECTORY_SEPARATOR;
         $matchesNew = [];
 
-        // First pass: collect unique URLs
         foreach ($matches as $match) {
             $url = $match[2];
 
-            // Skip data URLs and absolute URLs
             if (str_starts_with($url, 'data:')
                 || str_starts_with($url, 'http://')
                 || str_starts_with($url, 'https://')) {
                 continue;
             }
 
-            // Store only unique URLs
             if (!isset($matchesNew[$url])) {
                 $matchesNew[$url] = $match;
             }
         }
 
-        // Second pass: process and replace URLs
         foreach ($matchesNew as $match) {
             $url = $match[2];
-            $file = realpath($dirname.$url);
+            $file = $dirname.$url;
 
-            // Skip if file doesn't exist
-            if (false === $file || !file_exists($file)) {
+            $resolvedFile = realpath($file);
+
+            if (false === $resolvedFile || !file_exists($resolvedFile)) {
                 continue;
             }
 
-            $baseUrlPart = str_replace($vendorDir, '', $file);
-            $mtime = filemtime($file) ?: time();
+            $baseUrlPart = str_replace($vendorDir, '', $resolvedFile);
+            $mtime = filemtime($resolvedFile) ?: time();
             $v = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $mtime);
 
             $cleanUrl = $match[0];
@@ -240,11 +247,9 @@ class AssetComposer
         $package = $assetParts[1];
         $assetPath = implode('/', array_slice($assetParts, 2));
 
-        // Handle app assets
         if (('app' === $namespace) && ('assets' === $package)) {
             $vendorFile = $this->projectDir.'/assets/'.$assetPath;
         } else {
-            // Search for the asset in configured paths
             $vendorFile = '';
             $found = false;
 
@@ -261,7 +266,6 @@ class AssetComposer
                 throw new BadRequestHttpException('Asset not found: '.$asset);
             }
 
-            // Security check to prevent directory traversal
             $realVendorFilePath = realpath($vendorFile);
             $realProjectDir = realpath($this->projectDir);
 
@@ -272,12 +276,10 @@ class AssetComposer
             }
         }
 
-        // Final check that the file exists
         if (!file_exists($vendorFile)) {
             throw new BadRequestHttpException('Asset file not found: '.str_replace($this->projectDir.'/', '', $vendorFile));
         }
 
-        // Generate the URL with version parameter
         $baseUrlPart = $namespace.'/'.$package.'/'.$assetPath;
         $baseUrl = $this->router->generate('jbs_new_media_assets_composer', [
             'namespace' => $namespace,
