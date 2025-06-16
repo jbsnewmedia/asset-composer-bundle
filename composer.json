@@ -62,6 +62,10 @@
     "test": ["@bin-phpunit-no-coverage"],
     "test-coverage": ["@bin-phpunit-coverage"],
     "test-full": ["@bin-phpunit"],
-    "test-watch": ["@bin-phpunit --testdox"]
+    "test-watch": ["@bin-phpunit --testdox"],
+
+    "ci": ["@bin-ecs", "@bin-rector", "@bin-phpstan", "@bin-phpunit-no-coverage"],
+    "ci-fix": ["@bin-ecs-fix", "@bin-rector-process", "@bin-phpstan", "@bin-phpunit-no-coverage"],
+    "ci-coverage": ["@bin-ecs", "@bin-rector", "@bin-phpstan", "@bin-phpunit-coverage"]
   }
 }
