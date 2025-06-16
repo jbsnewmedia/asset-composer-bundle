@@ -1,0 +1,69 @@
+name: CI
+
+on:
+    push:
+        branches: [ main, develop, feature/* ]
+    pull_request:
+        branches: [ main, develop ]
+
+env:
+    PHP_VERSION: '8.1'
+
+jobs:
+    ci:
+        name: Code Quality & Tests
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ env.PHP_VERSION }}
+                  extensions: mbstring, xml, ctype, iconv, intl, pdo, dom, filter, gd, json
+                  tools: composer:v2
+                  coverage: xdebug
+
+            - name: Get composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+            - name: Cache composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: |
+                  composer install --prefer-dist --no-progress --no-interaction
+                  composer run bin-ecs-install
+                  composer run bin-phpstan-install
+                  composer run bin-rector-install
+                  composer run bin-phpunit-install
+
+            - name: 🔍 PHP CS Fixer (ECS)
+              run: composer run bin-ecs
+
+            - name: 🔧 Rector Check
+              run: composer run bin-rector
+
+            - name: 📊 PHPStan Analysis
+              run: composer run bin-phpstan
+
+            - name: ✅ PHPUnit Tests
+              run: composer run bin-phpunit
+
+            - name: 📈 Generate Coverage Report
+              if: github.ref == 'refs/heads/main'
+              run: composer run bin-phpunit-coverage
+
+            - name: Upload coverage to Codecov
+              if: github.ref == 'refs/heads/main'
+              uses: codecov/codecov-action@v4
+              with:
+                  file: ./var/coverage.xml
+                  flags: unittests
