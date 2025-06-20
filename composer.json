@@ -43,7 +43,7 @@
 
     "bin-phpstan-install": ["composer bin phpstan install"],
     "bin-phpstan-update": ["composer bin phpstan update"],
-    "bin-phpstan": ["vendor-bin/phpstan/vendor/bin/phpstan analyse --configuration=phpstan.neon"],
+    "bin-phpstan": ["vendor-bin/phpstan/vendor/bin/phpstan analyse --configuration=phpstan-global.neon"],
     "bin-phpstan-v": ["vendor-bin/phpstan/vendor/bin/phpstan -V"],
 
     "bin-phpunit-install": ["composer bin phpunit install"],
