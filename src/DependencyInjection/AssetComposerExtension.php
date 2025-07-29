@@ -40,7 +40,7 @@ class AssetComposerExtension extends Extension implements PrependExtensionInterf
 
         $filesystem = new Filesystem();
         $targetPath = $projectDir.'/config/routes/asset_composer.yaml';
-        $sourcePath = __DIR__.'/../../config/routes.yaml';
+        $sourcePath = __DIR__.'/../../config/routes/asset_composer.yaml';
 
         try {
             $targetDir = dirname($targetPath);
