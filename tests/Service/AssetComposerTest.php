@@ -7,10 +7,10 @@ namespace JBSNewMedia\AssetComposerBundle\Tests\Service;
 use JBSNewMedia\AssetComposerBundle\Service\AssetComposer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 final class AssetComposerTest extends TestCase
 {
@@ -21,8 +21,8 @@ final class AssetComposerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturesDir = __DIR__ . '/../Fixtures';
-        $this->projectDir = sys_get_temp_dir() . '/asset-composer-test-' . uniqid();
+        $this->fixturesDir = __DIR__.'/../Fixtures';
+        $this->projectDir = sys_get_temp_dir().'/asset-composer-test-'.uniqid();
 
         // Copy fixtures to test project dir
         $filesystem = new Filesystem();
@@ -42,9 +42,9 @@ final class AssetComposerTest extends TestCase
     #[Test]
     public function getAssetFileSuccessfulWithFixtures(): void
     {
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.css');
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
         $baseUrlPart = 'test/package/asset.css';
-        $validVersion = md5($baseUrlPart . '#test-secret#' . $fileMTime);
+        $validVersion = md5($baseUrlPart.'#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',
@@ -65,9 +65,9 @@ final class AssetComposerTest extends TestCase
     public function getAssetFileWithProtectionFileFromFixtures(): void
     {
         // assetscomposer.json ist bereits in Fixtures vorhanden
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.css');
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
         $baseUrlPart = 'test/package/asset.css';
-        $validVersion = md5($baseUrlPart . '#test-secret#' . $fileMTime);
+        $validVersion = md5($baseUrlPart.'#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',

@@ -36,7 +36,7 @@ class AssetComposerExtensionTest extends TestCase
         $this->assertIsArray($functions);
         $this->assertCount(5, $functions);
 
-        $functionNames = array_map(fn(TwigFunction $func) => $func->getName(), $functions);
+        $functionNames = array_map(fn (TwigFunction $func) => $func->getName(), $functions);
 
         $this->assertContains('addAssetComposer', $functionNames);
         $this->assertContains('removeAssetComposer', $functionNames);
@@ -115,7 +115,7 @@ class AssetComposerExtensionTest extends TestCase
             ->method('getAssetFileName')
             ->willReturnMap([
                 ['test/package/style1.css', '/assets/style1.css?v=123'],
-                ['test/package/style2.css', '/assets/style2.css?v=456']
+                ['test/package/style2.css', '/assets/style2.css?v=456'],
             ]);
 
         $this->twigExtension->addAssetComposer('test/package/style1.css');
@@ -150,7 +150,7 @@ class AssetComposerExtensionTest extends TestCase
             ->method('getAssetFileName')
             ->willReturnMap([
                 ['test/top.css', '/assets/top.css?v=789'],
-                ['test/bottom.js', '/assets/bottom.js?v=012']
+                ['test/bottom.js', '/assets/bottom.js?v=012'],
             ]);
 
         $this->twigExtension->addAssetComposer('test/top.css', 'top');

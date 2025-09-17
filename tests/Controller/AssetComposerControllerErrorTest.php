@@ -1,4 +1,5 @@
 <?php
+
 // tests/Controller/AssetComposerControllerErrorTest.php
 
 declare(strict_types=1);

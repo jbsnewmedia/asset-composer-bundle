@@ -1,4 +1,5 @@
 <?php
+
 // tests/Service/AssetComposerAdvancedTest.php - Korrigierte Version
 
 declare(strict_types=1);
@@ -8,9 +9,9 @@ namespace JBSNewMedia\AssetComposerBundle\Tests\Service;
 use JBSNewMedia\AssetComposerBundle\Service\AssetComposer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 final class AssetComposerAdvancedTest extends TestCase
 {
@@ -21,7 +22,7 @@ final class AssetComposerAdvancedTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->projectDir = sys_get_temp_dir() . '/asset-composer-advanced-' . uniqid();
+        $this->projectDir = sys_get_temp_dir().'/asset-composer-advanced-'.uniqid();
         $this->filesystem = new Filesystem();
         $this->filesystem->mkdir($this->projectDir);
 
@@ -31,7 +32,7 @@ final class AssetComposerAdvancedTest extends TestCase
         $this->router
             ->method('generate')
             ->with('jbs_new_media_assets_composer', $this->anything(), UrlGeneratorInterface::ABSOLUTE_URL)
-            ->willReturnCallback(function($route, $params) {
+            ->willReturnCallback(function ($route, $params) {
                 return sprintf('/assetscomposer/%s/%s/%s',
                     $params['namespace'],
                     $params['package'],
@@ -54,18 +55,18 @@ final class AssetComposerAdvancedTest extends TestCase
         $contentTypes = [
             'css' => 'body { color: red; }',
             'js' => 'console.log("test");',
-            'png' => base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='),
+            'png' => base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', true),
             'woff2' => 'mock-font-data',
             'json' => '{"test": true}',
-            'svg' => '<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+            'svg' => '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
         ];
 
         foreach ($contentTypes as $extension => $content) {
             $this->createAssetWithProtection($extension, $content);
 
-            $fileMTime = filemtime($this->projectDir . "/vendor/test/package/asset.{$extension}");
+            $fileMTime = filemtime($this->projectDir."/vendor/test/package/asset.{$extension}");
             $baseUrlPart = "test/package/asset.{$extension}";
-            $validVersion = md5($baseUrlPart . '#test-secret#' . $fileMTime);
+            $validVersion = md5($baseUrlPart.'#test-secret#'.$fileMTime);
 
             $response = $this->assetComposer->getAssetFile(
                 'test',
@@ -122,18 +123,18 @@ final class AssetComposerAdvancedTest extends TestCase
         }';
 
         // Create referenced files mit korrekten Pfaden
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package/fonts');
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package/images');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package/fonts');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package/images');
 
         // Erstelle die referenzierten Dateien
-        file_put_contents($this->projectDir . '/vendor/test/package/fonts/custom.woff2', 'font-data');
-        file_put_contents($this->projectDir . '/vendor/test/package/fonts/custom.woff', 'font-data');
-        file_put_contents($this->projectDir . '/vendor/test/package/images/icon.svg', '<svg></svg>');
+        file_put_contents($this->projectDir.'/vendor/test/package/fonts/custom.woff2', 'font-data');
+        file_put_contents($this->projectDir.'/vendor/test/package/fonts/custom.woff', 'font-data');
+        file_put_contents($this->projectDir.'/vendor/test/package/images/icon.svg', '<svg></svg>');
 
         $this->createAssetWithProtection('css', $cssContent);
 
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.css');
-        $validVersion = md5('test/package/asset.css#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
+        $validVersion = md5('test/package/asset.css#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',
@@ -145,11 +146,11 @@ final class AssetComposerAdvancedTest extends TestCase
         $content = $response->getContent();
 
         // Test: URL-Versionierung sollte funktionieren wenn Dateien existieren
-        $hasVersioning = strpos($content, '?v=') !== false;
+        $hasVersioning = false !== strpos($content, '?v=');
 
         // Erwarte Versionierung ODER ursprünglicher Content (abhängig von Implementierung)
         $this->assertTrue(
-            $hasVersioning || strpos($content, 'url("../fonts/custom.woff2")') !== false,
+            $hasVersioning || false !== strpos($content, 'url("../fonts/custom.woff2")'),
             'CSS sollte entweder versionierte URLs oder ursprünglichen Content enthalten'
         );
 
@@ -189,17 +190,17 @@ final class AssetComposerAdvancedTest extends TestCase
     public function getAssetFileWithMultiplePaths(): void
     {
         // Create asset in custom vendor path
-        $this->filesystem->mkdir($this->projectDir . '/custom-vendor/test/package');
-        file_put_contents($this->projectDir . '/custom-vendor/test/package/custom.css', 'body { color: blue; }');
+        $this->filesystem->mkdir($this->projectDir.'/custom-vendor/test/package');
+        file_put_contents($this->projectDir.'/custom-vendor/test/package/custom.css', 'body { color: blue; }');
 
         $protectionContent = json_encode([
             'name' => 'test-package',
-            'files' => ['custom.css']
+            'files' => ['custom.css'],
         ]);
-        file_put_contents($this->projectDir . '/custom-vendor/test/package/assetscomposer.json', $protectionContent);
+        file_put_contents($this->projectDir.'/custom-vendor/test/package/assetscomposer.json', $protectionContent);
 
-        $fileMTime = filemtime($this->projectDir . '/custom-vendor/test/package/custom.css');
-        $validVersion = md5('test/package/custom.css#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/custom-vendor/test/package/custom.css');
+        $validVersion = md5('test/package/custom.css#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',
@@ -247,20 +248,20 @@ final class AssetComposerAdvancedTest extends TestCase
         );
 
         // Erstelle asset.css und dev-asset.css
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/asset.css', 'body { color: red; }');
-        file_put_contents($this->projectDir . '/vendor/test/package/dev-asset.css', 'body { color: green; }');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
+        file_put_contents($this->projectDir.'/vendor/test/package/dev-asset.css', 'body { color: green; }');
 
         $protectionContent = json_encode([
             'name' => 'test-package',
             'files' => ['asset.css'],
-            'files-dev' => ['dev-asset.css']
+            'files-dev' => ['dev-asset.css'],
         ]);
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', $protectionContent);
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
 
         // Test dev-only file
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/dev-asset.css');
-        $validVersion = md5('test/package/dev-asset.css#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/dev-asset.css');
+        $validVersion = md5('test/package/dev-asset.css#test-secret#'.$fileMTime);
 
         $response = $devAssetComposer->getAssetFile('test', 'package', 'dev-asset.css', $validVersion);
 
@@ -283,12 +284,12 @@ final class AssetComposerAdvancedTest extends TestCase
     #[Test]
     public function getAssetFileWithUnreadableAssetsComposerFile(): void
     {
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/asset.css', 'body { color: red; }');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
 
         // Erstelle unlesbare assetscomposer.json
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', '{"test": true}');
-        chmod($this->projectDir . '/vendor/test/package/assetscomposer.json', 0000);
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', '{"test": true}');
+        chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0000);
 
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Unable to read the asset composer file');
@@ -297,7 +298,7 @@ final class AssetComposerAdvancedTest extends TestCase
             $this->assetComposer->getAssetFile('test', 'package', 'asset.css', '');
         } finally {
             // Cleanup: Berechtigung für tearDown wiederherstellen
-            chmod($this->projectDir . '/vendor/test/package/assetscomposer.json', 0644);
+            chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0644);
         }
     }
 
@@ -305,17 +306,17 @@ final class AssetComposerAdvancedTest extends TestCase
     public function getAssetFileWithInvalidContentType(): void
     {
         // Erstelle File mit unbekannter Extension
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/asset.unknown', 'content');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/asset.unknown', 'content');
 
         $protectionContent = json_encode([
             'name' => 'test-package',
-            'files' => ['asset.unknown']
+            'files' => ['asset.unknown'],
         ]);
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', $protectionContent);
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
 
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.unknown');
-        $validVersion = md5('test/package/asset.unknown#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.unknown');
+        $validVersion = md5('test/package/asset.unknown#test-secret#'.$fileMTime);
 
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Invalid content type');
@@ -325,52 +326,52 @@ final class AssetComposerAdvancedTest extends TestCase
 
     private function createAssetWithProtection(string $extension, string $content): void
     {
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . "/vendor/test/package/asset.{$extension}", $content);
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir."/vendor/test/package/asset.{$extension}", $content);
 
         $protectionContent = json_encode([
             'name' => 'test-package',
             'files' => ["asset.{$extension}"],
-            'files-dev' => ["dev-asset.{$extension}"]
+            'files-dev' => ["dev-asset.{$extension}"],
         ]);
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', $protectionContent);
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
     }
 
     private function createInvalidProtectionFile(): void
     {
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/asset.css', 'body { color: red; }');
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', 'invalid-json');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', 'invalid-json');
     }
 
     private function createProtectionFile(string $content): void
     {
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/asset.css', 'body { color: red; }');
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', $content);
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $content);
     }
 
     private function createNestedAssetStructure(): void
     {
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package/dist/css/theme', 0755, true);
-        file_put_contents($this->projectDir . '/vendor/test/package/dist/css/theme/dark.css', '.dark { background: #000; }');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package/dist/css/theme', 0755, true);
+        file_put_contents($this->projectDir.'/vendor/test/package/dist/css/theme/dark.css', '.dark { background: #000; }');
 
         $protectionContent = json_encode([
             'name' => 'test-package',
-            'files' => ['dist/css/theme/dark.css']
+            'files' => ['dist/css/theme/dark.css'],
         ]);
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', $protectionContent);
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
     }
 
     protected function tearDown(): void
     {
         // Berechtigungen wiederherstellen vor Cleanup
-        if (is_file($this->projectDir . '/vendor/test/package/assetscomposer.json')) {
-            chmod($this->projectDir . '/vendor/test/package/assetscomposer.json', 0644);
+        if (is_file($this->projectDir.'/vendor/test/package/assetscomposer.json')) {
+            chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0644);
         }
 
-        if (is_file($this->projectDir . '/vendor/test/package/asset.css')) {
-            chmod($this->projectDir . '/vendor/test/package/asset.css', 0644);
+        if (is_file($this->projectDir.'/vendor/test/package/asset.css')) {
+            chmod($this->projectDir.'/vendor/test/package/asset.css', 0644);
         }
 
         if (is_dir($this->projectDir)) {

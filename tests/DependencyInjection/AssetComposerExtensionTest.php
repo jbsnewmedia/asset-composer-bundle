@@ -22,7 +22,7 @@ final class AssetComposerExtensionTest extends TestCase
     {
         $this->extension = new AssetComposerExtension();
         $this->container = new ContainerBuilder();
-        $this->fixturesDir = __DIR__ . '/../Fixtures';
+        $this->fixturesDir = __DIR__.'/../Fixtures';
         $this->container->setParameter('kernel.project_dir', '/tmp/test-project');
     }
 
@@ -40,8 +40,8 @@ final class AssetComposerExtensionTest extends TestCase
     {
         $config = [
             'asset_composer' => [
-                'paths' => ['/custom/path1/', '/custom/path2/']
-            ]
+                'paths' => ['/custom/path1/', '/custom/path2/'],
+            ],
         ];
 
         $this->extension->load($config, $this->container);
@@ -55,7 +55,7 @@ final class AssetComposerExtensionTest extends TestCase
     public function prependCopiesRouteFileFromFixtures(): void
     {
         $testProjectDir = sys_get_temp_dir().'/test-project-'.uniqid();
-        $bundleRoutesFile = __DIR__ . '/../../config/routes.yaml';
+        $bundleRoutesFile = __DIR__.'/../../config/routes.yaml';
         $routesWasCreatedByTest = false;
 
         try {
@@ -68,7 +68,7 @@ final class AssetComposerExtensionTest extends TestCase
                     mkdir($bundleConfigDir, 0755, true);
                 }
 
-                $fixtureRoutesFile = $this->fixturesDir . '/config/routes.yaml';
+                $fixtureRoutesFile = $this->fixturesDir.'/config/routes.yaml';
                 copy($fixtureRoutesFile, $bundleRoutesFile);
                 $routesWasCreatedByTest = true;
             }
@@ -81,7 +81,6 @@ final class AssetComposerExtensionTest extends TestCase
             $routeContent = file_get_contents($routeFilePath);
             self::assertStringContainsString('jbs_new_media_assets_composer:', $routeContent);
             self::assertStringContainsString('AssetComposerController::getAsset', $routeContent);
-
         } finally {
             // Cleanup
             $filesystem = new Filesystem();
@@ -129,8 +128,8 @@ final class ConfigurationTest extends TestCase
 
         $config = $processor->processConfiguration($configuration, [
             [
-                'paths' => ['/test/path1/', '/test/path2/']
-            ]
+                'paths' => ['/test/path1/', '/test/path2/'],
+            ],
         ]);
 
         self::assertEquals(['/test/path1/', '/test/path2/'], $config['paths']);

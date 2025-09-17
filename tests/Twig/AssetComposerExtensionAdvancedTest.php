@@ -1,4 +1,5 @@
 <?php
+
 // tests/Twig/AssetComposerExtensionAdvancedTest.php
 
 declare(strict_types=1);

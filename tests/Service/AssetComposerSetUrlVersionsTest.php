@@ -1,4 +1,5 @@
 <?php
+
 // tests/Service/AssetComposerSetUrlVersionsTest.php - Korrigierte Version
 
 declare(strict_types=1);
@@ -8,8 +9,8 @@ namespace JBSNewMedia\AssetComposerBundle\Tests\Service;
 use JBSNewMedia\AssetComposerBundle\Service\AssetComposer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class AssetComposerSetUrlVersionsTest extends TestCase
 {
@@ -20,7 +21,7 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->projectDir = sys_get_temp_dir() . '/asset-composer-url-' . uniqid();
+        $this->projectDir = sys_get_temp_dir().'/asset-composer-url-'.uniqid();
         $this->filesystem = new Filesystem();
         $this->filesystem->mkdir($this->projectDir);
 
@@ -45,8 +46,8 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
 
         $this->createAssetWithoutReferencedFiles('css', $cssContent);
 
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.css');
-        $validVersion = md5('test/package/asset.css#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
+        $validVersion = md5('test/package/asset.css#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',
@@ -71,13 +72,13 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
     .class3 { background-image: url("./icon.svg"); }';
 
         // Erstelle Bild-Datei im gleichen Verzeichnis wie CSS
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/icon.svg', '<svg></svg>');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/icon.svg', '<svg></svg>');
 
         $this->createAssetWithoutReferencedFiles('css', $cssContent);
 
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.css');
-        $validVersion = md5('test/package/asset.css#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
+        $validVersion = md5('test/package/asset.css#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',
@@ -105,15 +106,15 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
         .no-quotes { background: url(./none.png); }";
 
         // Erstelle Dateien im selben Verzeichnis
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . '/vendor/test/package/single.png', 'png-data');
-        file_put_contents($this->projectDir . '/vendor/test/package/double.png', 'png-data');
-        file_put_contents($this->projectDir . '/vendor/test/package/none.png', 'png-data');
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir.'/vendor/test/package/single.png', 'png-data');
+        file_put_contents($this->projectDir.'/vendor/test/package/double.png', 'png-data');
+        file_put_contents($this->projectDir.'/vendor/test/package/none.png', 'png-data');
 
         $this->createAssetWithoutReferencedFiles('css', $cssContent);
 
-        $fileMTime = filemtime($this->projectDir . '/vendor/test/package/asset.css');
-        $validVersion = md5('test/package/asset.css#test-secret#' . $fileMTime);
+        $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
+        $validVersion = md5('test/package/asset.css#test-secret#'.$fileMTime);
 
         $response = $this->assetComposer->getAssetFile(
             'test',
@@ -134,14 +135,14 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
 
     private function createAssetWithoutReferencedFiles(string $extension, string $content): void
     {
-        $this->filesystem->mkdir($this->projectDir . '/vendor/test/package');
-        file_put_contents($this->projectDir . "/vendor/test/package/asset.{$extension}", $content);
+        $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
+        file_put_contents($this->projectDir."/vendor/test/package/asset.{$extension}", $content);
 
         $protectionContent = json_encode([
             'name' => 'test-package',
-            'files' => ["asset.{$extension}"]
+            'files' => ["asset.{$extension}"],
         ]);
-        file_put_contents($this->projectDir . '/vendor/test/package/assetscomposer.json', $protectionContent);
+        file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
     }
 
     protected function tearDown(): void

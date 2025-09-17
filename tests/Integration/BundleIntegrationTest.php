@@ -1,4 +1,5 @@
 <?php
+
 // tests/Integration/BundleIntegrationTest.php
 
 declare(strict_types=1);
@@ -40,9 +41,9 @@ final class BundleIntegrationTest extends TestCase
                     '/vendor/',
                     '/node_modules/',
                     '/bower_components/',
-                    '/custom-assets/'
-                ]
-            ]
+                    '/custom-assets/',
+                ],
+            ],
         ];
 
         $extension->load($complexConfig, $container);
@@ -58,14 +59,14 @@ final class BundleIntegrationTest extends TestCase
     #[Test]
     public function prependHandlesExistingRoutesFile(): void
     {
-        $projectDir = sys_get_temp_dir() . '/bundle-integration-' . uniqid();
+        $projectDir = sys_get_temp_dir().'/bundle-integration-'.uniqid();
         $filesystem = new Filesystem();
 
         try {
             // Setup
-            $filesystem->mkdir($projectDir . '/config/routes');
+            $filesystem->mkdir($projectDir.'/config/routes');
             $existingContent = "existing_route:\n    path: /test";
-            $filesystem->dumpFile($projectDir . '/config/routes/asset_composer.yaml', $existingContent);
+            $filesystem->dumpFile($projectDir.'/config/routes/asset_composer.yaml', $existingContent);
 
             $container = new ContainerBuilder();
             $container->setParameter('kernel.project_dir', $projectDir);
@@ -75,9 +76,8 @@ final class BundleIntegrationTest extends TestCase
             // Should not overwrite existing file
             $extension->prepend($container);
 
-            $content = file_get_contents($projectDir . '/config/routes/asset_composer.yaml');
+            $content = file_get_contents($projectDir.'/config/routes/asset_composer.yaml');
             $this->assertEquals($existingContent, $content);
-
         } finally {
             if (is_dir($projectDir)) {
                 $filesystem->remove($projectDir);

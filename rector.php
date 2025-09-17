@@ -10,7 +10,7 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
-        __DIR__ . '/src',
+        __DIR__.'/src',
     ]);
     $rectorConfig->fileExtensions(['php']);
 
@@ -23,6 +23,6 @@ return static function (RectorConfig $rectorConfig): void {
         SymfonySetList::SYMFONY_64,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        LevelSetList::UP_TO_PHP_81
+        LevelSetList::UP_TO_PHP_81,
     ]);
 };
