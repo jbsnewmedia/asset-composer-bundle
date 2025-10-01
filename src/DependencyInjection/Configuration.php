@@ -19,6 +19,9 @@ class Configuration implements ConfigurationInterface
                ->arrayNode('paths')
                     ->scalarPrototype()->end()
                 ->end()
+                ->booleanNode('use_relative_path')
+                    ->defaultTrue()
+                ->end()
             ->end();
 
         return $treeBuilder;
