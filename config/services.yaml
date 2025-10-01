@@ -20,6 +20,7 @@ services:
             $environment: '%kernel.environment%'
             $appSecret: '%kernel.secret%'
             $paths: '%asset_composer.paths%'
+            $useRelativePath: '%asset_composer.use_relative_path%'
 
     # The Twig extension is autoconfigured, so the tag is not needed
     # but we keep the explicit service definition for clarity

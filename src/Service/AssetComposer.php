@@ -24,6 +24,7 @@ class AssetComposer
         protected string $environment,
         protected string $appSecret,
         protected array $paths = [],
+        protected bool $useRelativePath = true,
     ) {
         if ([] === $this->paths) {
             $this->paths = [
@@ -281,11 +282,12 @@ class AssetComposer
         }
 
         $baseUrlPart = $namespace.'/'.$package.'/'.$assetPath;
+        $referenceType = $this->useRelativePath ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_URL;
         $baseUrl = $this->router->generate('jbs_new_media_assets_composer', [
             'namespace' => $namespace,
             'package' => $package,
             'asset' => $assetPath,
-        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        ], $referenceType);
 
         $fileMTime = filemtime($vendorFile);
         if (false === $fileMTime) {
