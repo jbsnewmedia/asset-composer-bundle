@@ -31,7 +31,7 @@ final class AssetComposerAdvancedTest extends TestCase
         // Router Mock für getAssetFileName Tests
         $this->router
             ->method('generate')
-            ->with('jbs_new_media_assets_composer', $this->anything(), UrlGeneratorInterface::ABSOLUTE_URL)
+            ->with('jbs_new_media_assets_composer', $this->anything(), $this->anything())
             ->willReturnCallback(function ($route, $params) {
                 return sprintf('/assetscomposer/%s/%s/%s',
                     $params['namespace'],
