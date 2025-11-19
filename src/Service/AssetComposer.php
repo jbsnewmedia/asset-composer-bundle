@@ -228,7 +228,11 @@ class AssetComposer
             $v = md5($baseUrlPartNew.'#'.$this->appSecret.'#'.(string) $mtime);
 
             $cleanUrl = $match[0];
-            $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
+            if (strstr($cleanUrl, '?')) {
+                $newUrl = str_replace($url, $url.'&v='.$v, $cleanUrl);
+            } else {
+                $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
+            }
             $content = str_replace($cleanUrl, $newUrl, $content);
         }
 
