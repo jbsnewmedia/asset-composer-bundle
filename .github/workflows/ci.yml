@@ -55,7 +55,7 @@ jobs:
               run: composer run bin-phpstan
 
             - name: ✅ PHPUnit Tests
-              run: composer run bin-phpunit
+              run: composer run bin-phpunit-no-coverage
 
             - name: 📈 Generate Coverage Report
               if: github.ref == 'refs/heads/main'
