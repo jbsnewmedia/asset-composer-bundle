@@ -7,7 +7,7 @@ on:
         branches: [ main, develop ]
 
 env:
-    PHP_VERSION: '8.1'
+    PHP_VERSION: '8.3'
 
 jobs:
     ci:
@@ -55,7 +55,7 @@ jobs:
               run: composer run bin-phpstan
 
             - name: ✅ PHPUnit Tests
-              run: composer run bin-phpunit
+              run: composer run bin-phpunit-no-coverage
 
             - name: 📈 Generate Coverage Report
               if: github.ref == 'refs/heads/main'

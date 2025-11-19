@@ -214,18 +214,25 @@ class AssetComposer
             $url = $match[2];
             $file = $dirname.$url;
 
-            $resolvedFile = realpath($file);
+            $resolvedFile = realpath((string) parse_url($file, PHP_URL_PATH));
 
             if (false === $resolvedFile || !file_exists($resolvedFile)) {
                 continue;
             }
 
-            $baseUrlPart = str_replace($vendorDir, '', $resolvedFile);
+            $baseUrlPartNew = str_replace($vendorDir, '', $resolvedFile);
             $mtime = filemtime($resolvedFile) ?: time();
-            $v = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $mtime);
+            if (str_starts_with($baseUrlPart, 'app/')) {
+                $baseUrlPartNew = 'app'.$baseUrlPartNew;
+            }
+            $v = md5($baseUrlPartNew.'#'.$this->appSecret.'#'.(string) $mtime);
 
             $cleanUrl = $match[0];
-            $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
+            if (strstr($cleanUrl, '?')) {
+                $newUrl = str_replace($url, $url.'&v='.$v, $cleanUrl);
+            } else {
+                $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
+            }
             $content = str_replace($cleanUrl, $newUrl, $content);
         }
 
