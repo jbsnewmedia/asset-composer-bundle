@@ -289,12 +289,11 @@ class AssetComposer
         }
 
         $baseUrlPart = $namespace.'/'.$package.'/'.$assetPath;
-        $referenceType = $this->useRelativePath ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_URL;
         $baseUrl = $this->router->generate('jbs_new_media_assets_composer', [
             'namespace' => $namespace,
             'package' => $package,
             'asset' => $assetPath,
-        ], $referenceType);
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $fileMTime = filemtime($vendorFile);
         if (false === $fileMTime) {
