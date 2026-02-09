@@ -8,21 +8,21 @@ use Rector\Set\ValueObject\LevelSetList;
 use Rector\Symfony\Set\SymfonySetList;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
-return static function (RectorConfig $rectorConfig): void {
-    $rectorConfig->paths([
-        __DIR__.'/src',
-    ]);
-    $rectorConfig->fileExtensions(['php']);
+return RectorConfig::configure()
+    ->withPaths([
+        __DIR__ . '/src',
+    ])
+    ->withPhpSets(php82: true)
 
-    $rectorConfig->rule(InlineConstructorDefaultToPropertyRector::class);
-
-    $rectorConfig->rule(DeclareStrictTypesRector::class);
-
-    // define sets of rules
-    $rectorConfig->sets([
+    ->withSets([
         SymfonySetList::SYMFONY_64,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
-        LevelSetList::UP_TO_PHP_81,
-    ]);
-};
+    ])
+
+    ->withRules([
+        InlineConstructorDefaultToPropertyRector::class,
+        DeclareStrictTypesRector::class,
+    ])
+
+    ->withParallel();

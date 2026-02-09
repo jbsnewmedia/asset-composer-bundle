@@ -19,8 +19,8 @@ class AssetComposerExtension extends Extension implements PrependExtensionInterf
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('asset_composer.paths', $config['paths'] ?? []);
-        $container->setParameter('asset_composer.use_relative_path', $config['use_relative_path'] ?? true);
+        $container->setParameter('asset_composer.paths', (array) ($config['paths'] ?? []));
+        $container->setParameter('asset_composer.use_relative_path', (bool) ($config['use_relative_path'] ?? true));
 
         $loader = new YamlFileLoader(
             $container,

@@ -1,8 +1,7 @@
 # Basis for core and plugin code quality
 parameters:
+    treatPhpDocTypesAsCertain: false
     paths:
         - src
-    bootstrapFiles:
-        - vendor-bin/phpstan/vendor/autoload.php
     level: max
 

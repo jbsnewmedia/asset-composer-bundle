@@ -117,16 +117,17 @@ You can create an `assetcomposer.json` file in your asset packages to define whi
 
 To maintain code quality, this project uses:
 
-* **PHP-CS-Fixer**: `composer bin-ecs`
+* **PHP-CS-Fixer (ECS)**: `composer bin-ecs`
 * **PHPStan**: `composer bin-phpstan`
 * **Rector**: `composer bin-rector`
 
 Install and update tools using:
 
 ```bash
-composer bin ecs install
-composer bin phpstan install
-composer bin rector install
+composer bin-ecs-install
+composer bin-phpstan-install
+composer bin-rector-install
+composer bin-phpunit-install
 ```
 
 ---
@@ -137,8 +138,12 @@ All code adheres to modern PHP standards. Use the provided scripts to analyze an
 
 ```bash
 composer bin-phpstan       # Static analysis
-composer bin-ecs           # Coding standards
-composer bin-rector        # Code transformation
+composer bin-ecs           # Coding standards (check)
+composer bin-ecs-fix       # Coding standards (fix)
+composer bin-rector        # Code transformation (dry-run)
+composer bin-rector-process # Code transformation (apply)
+composer test              # Run tests
+composer test-coverage     # Run tests with coverage
 ```
 
 ---
