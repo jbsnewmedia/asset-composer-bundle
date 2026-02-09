@@ -11,38 +11,38 @@
 [![Rector](https://img.shields.io/badge/rector-checked-brightgreen)](https://github.com/jbsnewmedia/asset-composer-bundle/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/jbsnewmedia/asset-composer-bundle/branch/main/graph/badge.svg)](https://codecov.io/gh/jbsnewmedia/asset-composer-bundle)
 
-**AssetComposerBundle** is a Symfony bundle that helps you manage and serve assets directly from the `vendor` directory. It ensures all files are kept up-to-date by leveraging file modification timestamps for cache busting.
+**AssetComposerBundle** ist ein Symfony-Bundle, das Dir hilft, Assets direkt aus dem `vendor`-Verzeichnis zu verwalten und bereitzustellen. Es stellt sicher, dass alle Dateien auf dem neuesten Stand bleiben, indem es Dateiänderungszeitstempel für das Cache-Busting nutzt.
 
-## 🚀 Features
+## 🚀 Funktionen
 
-- Manage CSS/JS assets via Composer packages
-- Automatic versioning using file timestamps
-- Simple integration with Twig templates
-- Supports production/dev-only assets via `assetcomposer.json`
-- Symfony 6 & 7 compatible
+- Verwalten von CSS/JS-Assets über Composer-Pakete
+- Automatische Versionierung durch Datei-Zeitstempel
+- Einfache Integration in Twig-Templates
+- Unterstützt Produktions-/Nur-Dev-Assets über `assetcomposer.json`
+- Kompatibel mit Symfony 6 & 7
 
 ---
 
-## ⚙️ Requirements
+## ⚙️ Voraussetzungen
 
-- PHP 8.1 or higher
-- Symfony Framework 6.4 or 7.0
+- PHP 8.1 oder höher
+- Symfony Framework 6.4 oder 7.0
 
 ---
 
 ## 📦 Installation
 
-Use [Composer](https://getcomposer.org/) to install the bundle:
+Verwende [Composer](https://getcomposer.org/), um das Bundle zu installieren:
 
 ```bash
 composer require jbsnewmedia/asset-composer-bundle
-````
+```
 
 ---
 
-## 📋 Usage
+## 📋 Verwendung
 
-### 1. Install Asset Packages via Composer
+### 1. Asset-Pakete über Composer installieren
 
 ```bash
 composer require twbs/bootstrap
@@ -50,7 +50,7 @@ composer require components/font-awesome
 composer require avalynx/avalynx-alert
 ```
 
-### 2. Register Assets in Twig Templates
+### 2. Assets in Twig-Templates registrieren
 
 ```twig
 {% do addAssetComposer('twbs/bootstrap/dist/css/bootstrap.css') %}
@@ -59,7 +59,7 @@ composer require avalynx/avalynx-alert
 {% do addAssetComposer('avalynx/avalynx-alert/dist/js/avalynx-alert.js') %}
 ```
 
-### 3. Render in Layout
+### 3. Im Layout ausgeben
 
 ```twig
 <!DOCTYPE html>
@@ -83,7 +83,7 @@ composer require avalynx/avalynx-alert
 
 ---
 
-## 📁 File Structure
+## 📁 Dateistruktur
 
 ```
 config/
@@ -104,9 +104,9 @@ src/
 
 ---
 
-## 🧰 Configuration (Optional)
+## 🧰 Konfiguration (Optional)
 
-You can create an `assetcomposer.json` file in your asset packages to define which files should be exposed:
+Du kannst eine `assetcomposer.json`-Datei in Deinen Asset-Paketen erstellen, um festzulegen, welche Dateien freigegeben werden sollen:
 
 ```json
 {
@@ -124,15 +124,15 @@ You can create an `assetcomposer.json` file in your asset packages to define whi
 
 ---
 
-## 🔧 Development Tools
+## 🔧 Entwicklungswerkzeuge
 
-To maintain code quality, this project uses:
+Um die Codequalität aufrechtzuerhalten, verwendet dieses Projekt:
 
 * **PHP-CS-Fixer (ECS)**: `composer bin-ecs`
 * **PHPStan**: `composer bin-phpstan`
 * **Rector**: `composer bin-rector`
 
-Install and update tools using:
+Installiere und aktualisiere die Werkzeuge mit:
 
 ```bash
 composer bin-ecs-install
@@ -143,40 +143,40 @@ composer bin-phpunit-install
 
 ---
 
-## 🧪 Testing & QA
+## 🧪 Tests & QA
 
-All code adheres to modern PHP standards. Use the provided scripts to analyze and refactor the codebase:
+Der gesamte Code entspricht modernen PHP-Standards. Verwende die bereitgestellten Skripte, um die Codebasis zu analysieren und zu refaktorieren:
 
 ```bash
-composer bin-phpstan       # Static analysis
-composer bin-ecs           # Coding standards (check)
-composer bin-ecs-fix       # Coding standards (fix)
-composer bin-rector        # Code transformation (dry-run)
-composer bin-rector-process # Code transformation (apply)
-composer test              # Run tests
-composer test-coverage     # Run tests with coverage
+composer bin-phpstan       # Statische Analyse
+composer bin-ecs           # Coding-Standards (prüfen)
+composer bin-ecs-fix       # Coding-Standards (beheben)
+composer bin-rector        # Code-Transformation (Dry-Run)
+composer bin-rector-process # Code-Transformation (anwenden)
+composer test              # Tests ausführen
+composer test-coverage     # Tests mit Coverage ausführen
 ```
 
 ---
 
-## 📜 License
+## 📜 Lizenz
 
-This bundle is licensed under the MIT license. See the [LICENSE](LICENSE) file for more details.
+Dieses Bundle ist unter der MIT-Lizenz lizenziert. Weitere Details findest Du in der Datei [LICENSE](LICENSE).
 
-Developed by Jürgen Schwind and other contributors.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! If you'd like to contribute, please contact us or fork the repository and submit a pull request with your changes or improvements.
+Entwickelt von Jürgen Schwind und weiteren Mitwirkenden.
 
 ---
 
-## 📫 Contact
+## 🤝 Mitwirken
 
-If you have any questions, feature requests, or issues, please open an issue on our [GitHub repository](https://github.com/jbsnewmedia/asset-composer-bundle) or submit a pull request.
+Beiträge sind willkommen! Wenn Du etwas beitragen möchtest, kontaktiere uns oder erstelle einen Fork des Repositories und sende einen Pull-Request mit Deinen Änderungen oder Verbesserungen.
 
 ---
 
-*Always up-to-date. Simple. Composer-native asset management.*
+## 📫 Kontakt
+
+Wenn Du Fragen, Funktionswünsche oder Probleme hast, eröffne bitte ein Issue in unserem [GitHub-Repository](https://github.com/jbsnewmedia/asset-composer-bundle) oder sende einen Pull-Request.
+
+---
+
+*Immer aktuell. Einfach. Composer-natives Asset-Management.*
