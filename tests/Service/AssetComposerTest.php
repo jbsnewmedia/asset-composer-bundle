@@ -24,7 +24,6 @@ final class AssetComposerTest extends TestCase
         $this->fixturesDir = __DIR__.'/../Fixtures';
         $this->projectDir = sys_get_temp_dir().'/asset-composer-test-'.uniqid();
 
-        // Copy fixtures to test project dir
         $filesystem = new Filesystem();
         $filesystem->mirror($this->fixturesDir, $this->projectDir);
 
@@ -64,7 +63,6 @@ final class AssetComposerTest extends TestCase
     #[Test]
     public function getAssetFileWithProtectionFileFromFixtures(): void
     {
-        // assetscomposer.json ist bereits in Fixtures vorhanden
         $fileMTime = filemtime($this->projectDir.'/vendor/test/package/asset.css');
         $baseUrlPart = 'test/package/asset.css';
         $validVersion = md5($baseUrlPart.'#test-secret#'.$fileMTime);

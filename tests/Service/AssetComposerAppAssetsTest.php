@@ -29,7 +29,6 @@ final class AssetComposerAppAssetsTest extends TestCase
         $cssPath = $cssDir.'/style.css';
         $iconPath = $cssDir.'/icon.svg';
 
-        // CSS mit bereits vorhandenem Query-Parameter und absoluten/inline URLs, die übersprungen werden sollen
         $cssContent = "body{background:url('icon.svg?x=1');} .a{background:url(data:image/png;base64,AAAA)} .b{background:url('http://example.com/x.png')} ";
         file_put_contents($cssPath, $cssContent);
         file_put_contents($iconPath, '<svg></svg>');
@@ -52,9 +51,8 @@ final class AssetComposerAppAssetsTest extends TestCase
         $response = $assetComposer->getAssetFile('app', 'assets', 'style.css', $v);
         $content = $response->getContent();
 
-        // icon.svg sollte versioniert werden und Query-Parameter beibehalten (&v=...)
-        $this->assertStringContainsString("icon.svg?x=1&v=", $content);
-        // data: und http:// URLs bleiben unverändert
+        $this->assertStringContainsString('icon.svg?x=1&v=', $content);
+
         $this->assertStringContainsString('url(data:image/png', $content);
         $this->assertStringContainsString("url('http://example.com/x.png')", $content);
     }
@@ -75,7 +73,6 @@ final class AssetComposerAppAssetsTest extends TestCase
                 UrlGeneratorInterface::ABSOLUTE_URL
             )->willReturn('https://example.org/ac/test/package/file.css');
 
-        // Lege die Datei an, damit filemtime funktioniert
         $vendorDir = $this->projectDir.'/vendor/test/package';
         $this->filesystem->mkdir($vendorDir);
         file_put_contents($vendorDir.'/file.css', 'body{}');
@@ -86,7 +83,7 @@ final class AssetComposerAppAssetsTest extends TestCase
             'dev',
             'secret',
             ['/vendor/'],
-            false, // absolute Url
+            false,
         );
 
         $result = $assetComposer->getAssetFileName('test/package/file.css');

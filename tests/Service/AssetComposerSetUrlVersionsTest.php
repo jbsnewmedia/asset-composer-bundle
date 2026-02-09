@@ -1,7 +1,5 @@
 <?php
 
-// tests/Service/AssetComposerSetUrlVersionsTest.php - Korrigierte Version
-
 declare(strict_types=1);
 
 namespace JBSNewMedia\AssetComposerBundle\Tests\Service;
@@ -58,7 +56,6 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
 
         $content = $response->getContent();
 
-        // URLs zu nicht-existierenden Dateien sollten unverändert bleiben
         $this->assertStringContainsString('url("../images/missing.png")', $content);
         $this->assertStringContainsString('url("../fonts/missing.woff")', $content);
     }
@@ -71,7 +68,6 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
     .class2 { background-image: url("./icon.svg"); }
     .class3 { background-image: url("./icon.svg"); }';
 
-        // Erstelle Bild-Datei im gleichen Verzeichnis wie CSS
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/icon.svg', '<svg></svg>');
 
@@ -89,11 +85,9 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
 
         $content = $response->getContent();
 
-        // Teste dass URLs versioniert wurden
         $versionedUrlCount = substr_count($content, '?v=');
         $this->assertGreaterThan(0, $versionedUrlCount, 'URLs should be versioned');
 
-        // Zusätzliche Validierung: Prüfe dass die Originale URLs ersetzt wurden
         $this->assertStringContainsString('url("./icon.svg?v=', $content);
     }
 
@@ -105,7 +99,6 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
         .double-quotes { background: url(\"./double.png\"); }
         .no-quotes { background: url(./none.png); }";
 
-        // Erstelle Dateien im selben Verzeichnis
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/single.png', 'png-data');
         file_put_contents($this->projectDir.'/vendor/test/package/double.png', 'png-data');
@@ -125,10 +118,8 @@ final class AssetComposerSetUrlVersionsTest extends TestCase
 
         $content = $response->getContent();
 
-        // Alle URL-Typen sollten verarbeitet werden können
         $this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
 
-        // Prüfe dass mindestens einige URLs versioniert wurden
         $versionedUrlCount = substr_count($content, '?v=');
         $this->assertGreaterThanOrEqual(0, $versionedUrlCount);
     }

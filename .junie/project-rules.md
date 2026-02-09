@@ -22,10 +22,18 @@ All commands should be executed within the Docker container.
 - **Rector (Automated Refactoring):**
   `docker exec asset-composer-bundle-web-1 composer bin-rector-process`
 
+## Code Style & Comments
+- **Minimal Commenting**: All comments (`//` and DocBlocks) that are not strictly necessary for Code Quality (e.g., PHPStan types) must be removed.
+- **No Unnecessary Explanations**: Code should be self-explanatory. DocBlocks that only repeat method names or trivial logic are forbidden.
+- **Cleanup Command**: If comments have been added, they can be cleaned up using `composer bin-ecs-fix` (if configured) or manually.
+
 ## Project Structure Highlights
+- `.developer/`: Additional development documentation.
 - `.junie/`: AI-specific configuration and documentation.
 - `src/Controller`: Asset management controller.
 - `src/Service`: Core logic for asset composition.
 - `src/Twig`: Twig extensions for easy asset integration.
+- `src/DependencyInjection`: Configuration processing and automatic route installation.
+- `tests/`: Comprehensive test suite for core and plugin functionalities.
 
 

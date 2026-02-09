@@ -8,8 +8,8 @@ use JBSNewMedia\AssetComposerBundle\Service\AssetComposer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class AssetComposerSecurityAndValidationTest extends TestCase
 {
@@ -41,12 +41,10 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
     #[Test]
     public function getAssetFileThrowsOnSymlinkTraversal(): void
     {
-        // Erstelle Datei außerhalb des vendor-Verzeichnisses
         $outsideDir = $this->projectDir.'/outside';
         $this->fs->mkdir($outsideDir);
         file_put_contents($outsideDir.'/outside.css', 'body{}');
 
-        // Symlink innerhalb des vendor-Verzeichnisses zeigt nach außerhalb
         $symlinkPath = $this->projectDir.'/vendor/test/package/evil.css';
         @symlink($outsideDir.'/outside.css', $symlinkPath);
         $this->assertTrue(is_link($symlinkPath) || file_exists($symlinkPath), 'Symlink konnte nicht erstellt werden');
@@ -65,7 +63,6 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
     #[Test]
     public function getAssetFileNameThrowsOnSymlinkTraversal(): void
     {
-        // Erzeuge Ziel außerhalb des Projektverzeichnisses
         $outsideDir = sys_get_temp_dir().'/outside-'.uniqid();
         $this->fs->mkdir($outsideDir);
         file_put_contents($outsideDir.'/outside.css', 'body{}');
@@ -90,7 +87,6 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
         $vendorDir = $this->projectDir.'/vendor/test/package';
         file_put_contents($vendorDir.'/file.css', 'body{}');
 
-        // assetscomposer.json ohne "files"
         file_put_contents($vendorDir.'/assetscomposer.json', json_encode(['name' => 'pkg']));
 
         $service = $this->createService('dev');
@@ -109,7 +105,6 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
         $vendorDir = $this->projectDir.'/vendor/test/package';
         file_put_contents($vendorDir.'/file.css', 'body{}');
 
-        // files und files-dev vorhanden aber Datei nicht erlaubt
         $data = [
             'files' => ['allowed.css'],
             'files-dev' => ['dev-allowed.css'],

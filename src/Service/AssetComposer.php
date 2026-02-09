@@ -16,7 +16,7 @@ class AssetComposer
     protected array $contentTypes = [];
 
     /**
-     * @param string[] $paths Array of paths
+     * @param string[] $paths
      */
     public function __construct(
         protected string $projectDir,
@@ -76,13 +76,12 @@ class AssetComposer
 
         if ('app' === $namespace && 'assets' === $package) {
             $vendorDir = rtrim($this->projectDir, '/').'/assets/';
-            $rootDirForVersioning = $vendorDir; // wichtig: korrekt für app/assets
+            $rootDirForVersioning = $vendorDir;
         } else {
             foreach ($this->paths as $path) {
                 $candidateDir = rtrim($this->projectDir, '/').$path.$namespace.'/'.$package.'/';
                 if (is_dir($candidateDir)) {
                     $vendorDir = $candidateDir;
-                    // root ist z.B. <project>/vendor/ damit daraus namespace/package/... entsteht
                     $rootDirForVersioning = rtrim($this->projectDir, '/').$path;
                     break;
                 }
@@ -219,7 +218,6 @@ class AssetComposer
 
         $rootDirForVersioningReal = realpath($rootDirForVersioning);
         if (false === $rootDirForVersioningReal) {
-            // Fallback: ohne Root kann nicht zuverlässig relativiert werden -> nichts ändern.
             return $content;
         }
         $rootDirForVersioningReal = rtrim($rootDirForVersioningReal, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
@@ -237,18 +235,11 @@ class AssetComposer
 
             $mtime = (int) filemtime($resolvedFile);
 
-            // baseUrlPartNew muss exakt dem Format entsprechen, das getAssetFileName() nutzt:
-            // - vendor: <namespace>/<package>/<...>
-            // - app/assets: app/assets/<...>
             $relativeToRoot = str_replace($rootDirForVersioningReal, '', $resolvedFile);
 
             if ('app' === $namespace && 'assets' === $package) {
-                // rootDirForVersioning ist <project>/assets/
-                // -> relativeToRoot ist z.B. "img/foo.png"
                 $baseUrlPartNew = 'app/assets/'.$relativeToRoot;
             } else {
-                // rootDirForVersioning ist z.B. <project>/vendor/
-                // -> relativeToRoot ist z.B. "vendorname/package/path.png" ODER "namespace/package/..."
                 $baseUrlPartNew = $relativeToRoot;
             }
 
@@ -267,11 +258,6 @@ class AssetComposer
         return $content;
     }
 
-    /**
-     * Get the URL for an asset file with versioning.
-     *
-     * @throws BadRequestHttpException If the asset cannot be found or accessed
-     */
     public function getAssetFileName(string $asset): string
     {
         $assetParts = explode('/', $asset);

@@ -61,7 +61,6 @@ final class AssetComposerExtensionTest extends TestCase
         try {
             $this->container->setParameter('kernel.project_dir', $testProjectDir);
 
-            // Erstelle routes.yaml nur wenn sie nicht existiert
             if (!file_exists($bundleRoutesFile)) {
                 $bundleConfigDir = dirname($bundleRoutesFile);
                 if (!is_dir($bundleConfigDir)) {
@@ -82,15 +81,12 @@ final class AssetComposerExtensionTest extends TestCase
             self::assertStringContainsString('jbs_new_media_assets_composer:', $routeContent);
             self::assertStringContainsString('AssetComposerController::getAsset', $routeContent);
         } finally {
-            // Cleanup
             $filesystem = new Filesystem();
 
-            // Test-Projekt entfernen
             if (is_dir($testProjectDir)) {
                 $filesystem->remove($testProjectDir);
             }
 
-            // Bundle routes.yaml entfernen falls wir sie erstellt haben
             if ($routesWasCreatedByTest && file_exists($bundleRoutesFile)) {
                 unlink($bundleRoutesFile);
             }
