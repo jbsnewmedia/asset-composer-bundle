@@ -114,7 +114,7 @@ class AssetComposer
 
         $vendorProtectFile = $vendorDir.'assetscomposer.json';
         if (is_file($vendorProtectFile)) {
-            $vendorProtectContent = file_get_contents($vendorProtectFile);
+            $vendorProtectContent = @file_get_contents($vendorProtectFile);
             if (false === $vendorProtectContent) {
                 throw new BadRequestHttpException('Unable to read the asset composer file');
             }
@@ -161,7 +161,7 @@ class AssetComposer
             throw new BadRequestHttpException('Invalid content type');
         }
 
-        $content = file_get_contents($vendorFile);
+        $content = @file_get_contents($vendorFile);
         if (false === $content) {
             throw new BadRequestHttpException('Unable to read the asset file');
         }
