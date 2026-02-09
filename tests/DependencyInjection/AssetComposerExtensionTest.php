@@ -107,6 +107,17 @@ final class AssetComposerExtensionTest extends TestCase
 
         $this->extension->prepend($this->container);
     }
+
+    #[Test]
+    public function prependHandlesFilesystemException(): void
+    {
+        $this->container->setParameter('kernel.project_dir', '/dev/null');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('An error occurred while creating the routes file');
+
+        $this->extension->prepend($this->container);
+    }
 }
 
 final class ConfigurationTest extends TestCase

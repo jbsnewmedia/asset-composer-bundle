@@ -27,9 +27,7 @@ class AssetComposer
         protected bool $useRelativePath = true,
     ) {
         if ([] === $this->paths) {
-            $this->paths = [
-                '/vendor/',
-            ];
+            $this->paths = ['/vendor/'];
         } else {
             $this->paths[] = '/vendor/';
         }
@@ -74,21 +72,24 @@ class AssetComposer
     public function getAssetFile(string $namespace, string $package, string $asset, string $v): Response
     {
         $vendorDir = '';
-        $currentPath = '';
+        $rootDirForVersioning = '';
 
-        if (('app' === $namespace) && ('assets' === $package)) {
-            $vendorDir = $this->projectDir.'/assets/';
+        if ('app' === $namespace && 'assets' === $package) {
+            $vendorDir = rtrim($this->projectDir, '/').'/assets/';
+            $rootDirForVersioning = $vendorDir; // wichtig: korrekt für app/assets
         } else {
             foreach ($this->paths as $path) {
-                $currentPath = $path;
-                $vendorDir = $this->projectDir.$path.$namespace.'/'.$package.'/';
-                if (is_dir($vendorDir)) {
+                $candidateDir = rtrim($this->projectDir, '/').$path.$namespace.'/'.$package.'/';
+                if (is_dir($candidateDir)) {
+                    $vendorDir = $candidateDir;
+                    // root ist z.B. <project>/vendor/ damit daraus namespace/package/... entsteht
+                    $rootDirForVersioning = rtrim($this->projectDir, '/').$path;
                     break;
                 }
             }
         }
 
-        if (!is_dir($vendorDir)) {
+        if ('' === $vendorDir || !is_dir($vendorDir)) {
             throw new BadRequestHttpException('Vendor directory not found');
         }
 
@@ -98,7 +99,7 @@ class AssetComposer
 
         $vendorFile = $vendorDir.$asset;
 
-        if (!file_exists($vendorFile)) {
+        if (!is_file($vendorFile)) {
             throw new BadRequestHttpException('Asset file not found');
         }
 
@@ -113,7 +114,7 @@ class AssetComposer
         }
 
         $vendorProtectFile = $vendorDir.'assetscomposer.json';
-        if (file_exists($vendorProtectFile)) {
+        if (is_file($vendorProtectFile)) {
             $vendorProtectContent = file_get_contents($vendorProtectFile);
             if (false === $vendorProtectContent) {
                 throw new BadRequestHttpException('Unable to read the asset composer file');
@@ -124,22 +125,20 @@ class AssetComposer
                 throw new BadRequestHttpException('Invalid asset composer file');
             }
 
-            if ('prod' === $this->environment) {
-                if (!isset($vendorProtectJson['files']) || !is_array($vendorProtectJson['files'])) {
-                    throw new BadRequestHttpException('Invalid asset composer file: missing files array');
-                }
+            if (!isset($vendorProtectJson['files']) || !is_array($vendorProtectJson['files'])) {
+                throw new BadRequestHttpException('Invalid asset composer file: missing files array');
+            }
 
+            if ('prod' === $this->environment) {
                 if (!in_array($asset, $vendorProtectJson['files'], true)) {
                     throw new BadRequestHttpException('Asset not allowed in production environment');
                 }
             } else {
-                if (!isset($vendorProtectJson['files']) || !is_array($vendorProtectJson['files'])) {
-                    throw new BadRequestHttpException('Invalid asset composer file: missing files array');
-                }
-
                 if (isset($vendorProtectJson['files-dev']) && is_array($vendorProtectJson['files-dev'])) {
-                    if (!in_array($asset, $vendorProtectJson['files'], true)
-                        && !in_array($asset, $vendorProtectJson['files-dev'], true)) {
+                    if (
+                        !in_array($asset, $vendorProtectJson['files'], true)
+                        && !in_array($asset, $vendorProtectJson['files-dev'], true)
+                    ) {
                         throw new BadRequestHttpException('Asset not allowed in development environment');
                     }
                 } else {
@@ -157,21 +156,27 @@ class AssetComposer
 
         $baseUrlPart = $namespace.'/'.$package.'/'.$asset;
         $vNew = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
-        if (('' === $v) || ($v !== $vNew)) {
+        if ('' === $v || $v !== $vNew) {
             throw new BadRequestHttpException('Invalid asset version');
         }
 
         $fileType = pathinfo($vendorFile, PATHINFO_EXTENSION);
+        if (!isset($this->contentTypes[$fileType])) {
+            throw new BadRequestHttpException('Invalid content type');
+        }
+
         $content = file_get_contents($vendorFile);
         if (false === $content) {
             throw new BadRequestHttpException('Unable to read the asset file');
         }
 
-        if (!isset($this->contentTypes[$fileType])) {
-            throw new BadRequestHttpException('Invalid content type');
-        }
-
-        $content = $this->setUrlVersions($content, $this->projectDir.$currentPath, $vendorFile, $baseUrlPart);
+        $content = $this->setUrlVersions(
+            $content,
+            $rootDirForVersioning,
+            $vendorFile,
+            $namespace,
+            $package
+        );
 
         $response = new Response($content);
         $response->headers->set('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime('+10 years')));
@@ -183,8 +188,13 @@ class AssetComposer
         return $response;
     }
 
-    private function setUrlVersions(string $content, string $vendorDir, string $vendorFile, string $baseUrlPart): string
-    {
+    private function setUrlVersions(
+        string $content,
+        string $rootDirForVersioning,
+        string $vendorFile,
+        string $namespace,
+        string $package,
+    ): string {
         if (!str_ends_with($vendorFile, '.css') && !str_ends_with($vendorFile, '.js')) {
             return $content;
         }
@@ -194,45 +204,69 @@ class AssetComposer
         preg_match_all($urlRegex, $content, $matches, PREG_SET_ORDER);
 
         $dirname = dirname(realpath($vendorFile) ?: $vendorFile).DIRECTORY_SEPARATOR;
-        $matchesNew = [];
+        $uniqueMatchesByUrl = [];
 
         foreach ($matches as $match) {
             $url = $match[2];
 
-            if (str_starts_with($url, 'data:')
+            if (
+                str_starts_with($url, 'data:')
                 || str_starts_with($url, 'http://')
-                || str_starts_with($url, 'https://')) {
+                || str_starts_with($url, 'https://')
+            ) {
                 continue;
             }
 
-            if (!isset($matchesNew[$url])) {
-                $matchesNew[$url] = $match;
-            }
+            $uniqueMatchesByUrl[$url] = $match;
         }
 
-        foreach ($matchesNew as $match) {
+        $rootDirForVersioningReal = realpath($rootDirForVersioning);
+        if (false === $rootDirForVersioningReal) {
+            // Fallback: ohne Root kann nicht zuverlässig relativiert werden -> nichts ändern.
+            return $content;
+        }
+        $rootDirForVersioningReal = rtrim($rootDirForVersioningReal, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+
+        foreach ($uniqueMatchesByUrl as $match) {
             $url = $match[2];
-            $file = $dirname.$url;
 
-            $resolvedFile = realpath((string) parse_url($file, PHP_URL_PATH));
+            $fileCandidate = $dirname.$url;
+            $parsedPath = (string) parse_url($fileCandidate, PHP_URL_PATH);
+            $resolvedFile = realpath($parsedPath);
 
-            if (false === $resolvedFile || !file_exists($resolvedFile)) {
+            if (false === $resolvedFile || !is_file($resolvedFile)) {
                 continue;
             }
 
-            $baseUrlPartNew = str_replace($vendorDir, '', $resolvedFile);
-            $mtime = filemtime($resolvedFile) ?: time();
-            if (str_starts_with($baseUrlPart, 'app/')) {
-                $baseUrlPartNew = 'app'.$baseUrlPartNew;
+            $mtime = filemtime($resolvedFile);
+            if (false === $mtime) {
+                continue;
             }
+
+            // baseUrlPartNew muss exakt dem Format entsprechen, das getAssetFileName() nutzt:
+            // - vendor: <namespace>/<package>/<...>
+            // - app/assets: app/assets/<...>
+            $relativeToRoot = str_replace($rootDirForVersioningReal, '', $resolvedFile);
+
+            if ('app' === $namespace && 'assets' === $package) {
+                // rootDirForVersioning ist <project>/assets/
+                // -> relativeToRoot ist z.B. "img/foo.png"
+                $baseUrlPartNew = 'app/assets/'.$relativeToRoot;
+            } else {
+                // rootDirForVersioning ist z.B. <project>/vendor/
+                // -> relativeToRoot ist z.B. "vendorname/package/path.png" ODER "namespace/package/..."
+                $baseUrlPartNew = $relativeToRoot;
+            }
+
             $v = md5($baseUrlPartNew.'#'.$this->appSecret.'#'.(string) $mtime);
 
             $cleanUrl = $match[0];
-            if (strstr($cleanUrl, '?')) {
+            if (str_contains($cleanUrl, '?')) {
                 $newUrl = str_replace($url, $url.'&v='.$v, $cleanUrl);
             } else {
                 $newUrl = str_replace($url, $url.'?v='.$v, $cleanUrl);
             }
+
             $content = str_replace($cleanUrl, $newUrl, $content);
         }
 
@@ -255,14 +289,14 @@ class AssetComposer
         $package = $assetParts[1];
         $assetPath = implode('/', array_slice($assetParts, 2));
 
-        if (('app' === $namespace) && ('assets' === $package)) {
-            $vendorFile = $this->projectDir.'/assets/'.$assetPath;
+        if ('app' === $namespace && 'assets' === $package) {
+            $vendorFile = rtrim($this->projectDir, '/').'/assets/'.$assetPath;
         } else {
             $vendorFile = '';
             $found = false;
 
             foreach ($this->paths as $path) {
-                $candidateFile = $this->projectDir.$path.$asset;
+                $candidateFile = rtrim($this->projectDir, '/').$path.$asset;
                 if (is_file($candidateFile)) {
                     $vendorFile = $candidateFile;
                     $found = true;
@@ -277,19 +311,24 @@ class AssetComposer
             $realVendorFilePath = realpath($vendorFile);
             $realProjectDir = realpath($this->projectDir);
 
-            if (false === $realVendorFilePath
+            if (
+                false === $realVendorFilePath
                 || false === $realProjectDir
-                || !str_starts_with($realVendorFilePath, $realProjectDir)) {
+                || !str_starts_with($realVendorFilePath, $realProjectDir)
+            ) {
                 throw new BadRequestHttpException('Security violation: attempted directory traversal');
             }
         }
 
-        if (!file_exists($vendorFile)) {
-            throw new BadRequestHttpException('Asset file not found: '.str_replace($this->projectDir.'/', '', $vendorFile));
+        if (!is_file($vendorFile)) {
+            throw new BadRequestHttpException('Asset file not found: '.str_replace(rtrim($this->projectDir, '/').'/', '', $vendorFile));
         }
 
         $baseUrlPart = $namespace.'/'.$package.'/'.$assetPath;
-        $referenceType = $this->useRelativePath ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_URL;
+        $referenceType = $this->useRelativePath
+            ? UrlGeneratorInterface::RELATIVE_PATH
+            : UrlGeneratorInterface::ABSOLUTE_URL;
+
         $baseUrl = $this->router->generate('jbs_new_media_assets_composer', [
             'namespace' => $namespace,
             'package' => $package,

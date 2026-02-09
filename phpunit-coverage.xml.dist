@@ -10,7 +10,7 @@
          displayDetailsOnTestsThatTriggerWarnings="true">
 
     <testsuites>
-        <testsuite name="VisBundle Test Suite">
+        <testsuite name="AssetComposerBundle Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

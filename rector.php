@@ -12,7 +12,7 @@ return RectorConfig::configure()
     ->withPaths([
         __DIR__ . '/src',
     ])
-    ->withPhpSets(php82: true)
+    ->withPhpSets(php81: true)
 
     ->withSets([
         SymfonySetList::SYMFONY_64,

@@ -93,6 +93,22 @@ class AssetComposerExtensionAdvancedTest extends TestCase
     }
 
     #[Test]
+    public function addAndRemoveJsAsset(): void
+    {
+        $this->assetComposer
+            ->method('getAssetFileName')
+            ->willReturn('/assets/app.js?v=123');
+
+        $this->twigExtension->addAssetComposer('pkg/app.js', 'bottom');
+        $result = $this->twigExtension->renderJavascripts('bottom');
+        $this->assertStringContainsString('<script', (string) $result);
+
+        $this->twigExtension->removeAssetComposer('pkg/app.js', 'bottom');
+        $result = $this->twigExtension->renderJavascripts('bottom');
+        $this->assertEquals('', (string) $result);
+    }
+
+    #[Test]
     public function htmlEscapingInAssetUrls(): void
     {
         $this->assetComposer
