@@ -162,6 +162,6 @@ class AssetComposerExtensionTest extends TestCase
 
         $this->assertInstanceOf(Markup::class, $topResult);
         $this->assertInstanceOf(Markup::class, $bottomResult);
-        $this->assertEquals('', (string) $allResult); // No assets in 'all' position
+        $this->assertEquals('', (string) $allResult);
     }
 }

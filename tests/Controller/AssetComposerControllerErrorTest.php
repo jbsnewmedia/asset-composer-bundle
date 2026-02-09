@@ -1,7 +1,5 @@
 <?php
 
-// tests/Controller/AssetComposerControllerErrorTest.php
-
 declare(strict_types=1);
 
 namespace JBSNewMedia\AssetComposerBundle\Tests\Controller;

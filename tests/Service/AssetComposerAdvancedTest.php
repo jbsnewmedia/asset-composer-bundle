@@ -1,7 +1,5 @@
 <?php
 
-// tests/Service/AssetComposerAdvancedTest.php - Korrigierte Version
-
 declare(strict_types=1);
 
 namespace JBSNewMedia\AssetComposerBundle\Tests\Service;
@@ -28,7 +26,6 @@ final class AssetComposerAdvancedTest extends TestCase
 
         $this->router = $this->createMock(UrlGeneratorInterface::class);
 
-        // Router Mock für getAssetFileName Tests
         $this->router
             ->method('generate')
             ->with('jbs_new_media_assets_composer', $this->anything(), $this->anything())
@@ -122,11 +119,9 @@ final class AssetComposerAdvancedTest extends TestCase
             background: url("https://external.com/image.png");
         }';
 
-        // Create referenced files mit korrekten Pfaden
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package/fonts');
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package/images');
 
-        // Erstelle die referenzierten Dateien
         file_put_contents($this->projectDir.'/vendor/test/package/fonts/custom.woff2', 'font-data');
         file_put_contents($this->projectDir.'/vendor/test/package/fonts/custom.woff', 'font-data');
         file_put_contents($this->projectDir.'/vendor/test/package/images/icon.svg', '<svg></svg>');
@@ -145,16 +140,13 @@ final class AssetComposerAdvancedTest extends TestCase
 
         $content = $response->getContent();
 
-        // Test: URL-Versionierung sollte funktionieren wenn Dateien existieren
         $hasVersioning = false !== strpos($content, '?v=');
 
-        // Erwarte Versionierung ODER ursprünglicher Content (abhängig von Implementierung)
         $this->assertTrue(
             $hasVersioning || false !== strpos($content, 'url("../fonts/custom.woff2")'),
             'CSS sollte entweder versionierte URLs oder ursprünglichen Content enthalten'
         );
 
-        // Data URLs und externe URLs sollten unverändert bleiben
         $this->assertStringContainsString('data:image/svg+xml;base64,PHN2Zw==', $content);
         $this->assertStringContainsString('https://external.com/image.png', $content);
     }
@@ -164,7 +156,6 @@ final class AssetComposerAdvancedTest extends TestCase
     {
         $this->expectException(BadRequestHttpException::class);
 
-        // Der tatsächliche Fehler ist "Asset not found", nicht Security violation
         $this->expectExceptionMessage('Asset not found: ../../../etc/passwd');
 
         $this->assetComposer->getAssetFileName('../../../etc/passwd');
@@ -177,10 +168,8 @@ final class AssetComposerAdvancedTest extends TestCase
 
         $result = $this->assetComposer->getAssetFileName('test/package/dist/css/theme/dark.css');
 
-        // Der Router Mock gibt nur den Pfad zurück, nicht die vollständige URL
         $this->assertStringContainsString('?v=', $result);
 
-        // Teste dass es eine gültige Version ist (MD5 hash)
         $parts = explode('?v=', $result);
         $this->assertCount(2, $parts);
         $this->assertEquals(32, strlen($parts[1]), 'Version sollte ein MD5 Hash sein');
@@ -189,7 +178,6 @@ final class AssetComposerAdvancedTest extends TestCase
     #[Test]
     public function getAssetFileWithMultiplePaths(): void
     {
-        // Create asset in custom vendor path
         $this->filesystem->mkdir($this->projectDir.'/custom-vendor/test/package');
         file_put_contents($this->projectDir.'/custom-vendor/test/package/custom.css', 'body { color: blue; }');
 
@@ -238,16 +226,14 @@ final class AssetComposerAdvancedTest extends TestCase
     #[Test]
     public function getAssetFileWithDevEnvironmentAndDevFiles(): void
     {
-        // Test mit Development Environment
         $devAssetComposer = new AssetComposer(
             $this->projectDir,
             $this->router,
-            'dev', // Development environment
+            'dev',
             'test-secret',
             ['/vendor/']
         );
 
-        // Erstelle asset.css und dev-asset.css
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
         file_put_contents($this->projectDir.'/vendor/test/package/dev-asset.css', 'body { color: green; }');
@@ -259,7 +245,6 @@ final class AssetComposerAdvancedTest extends TestCase
         ]);
         file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
 
-        // Test dev-only file
         $fileMTime = filemtime($this->projectDir.'/vendor/test/package/dev-asset.css');
         $validVersion = md5('test/package/dev-asset.css#test-secret#'.$fileMTime);
 
@@ -274,7 +259,6 @@ final class AssetComposerAdvancedTest extends TestCase
     {
         $this->createAssetWithProtection('css', 'body { color: red; }');
 
-        // Test mit einem Pfad der realpath() Sicherheitscheck triggert
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Vendor directory traversal detected');
 
@@ -287,7 +271,6 @@ final class AssetComposerAdvancedTest extends TestCase
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
 
-        // Erstelle unlesbare assetscomposer.json
         file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', '{"test": true}');
         chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0000);
 
@@ -297,7 +280,6 @@ final class AssetComposerAdvancedTest extends TestCase
         try {
             $this->assetComposer->getAssetFile('test', 'package', 'asset.css', '');
         } finally {
-            // Cleanup: Berechtigung für tearDown wiederherstellen
             chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0644);
         }
     }
@@ -305,7 +287,6 @@ final class AssetComposerAdvancedTest extends TestCase
     #[Test]
     public function getAssetFileWithInvalidContentType(): void
     {
-        // Erstelle File mit unbekannter Extension
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/asset.unknown', 'content');
 
@@ -365,7 +346,6 @@ final class AssetComposerAdvancedTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Berechtigungen wiederherstellen vor Cleanup
         if (is_file($this->projectDir.'/vendor/test/package/assetscomposer.json')) {
             chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0644);
         }

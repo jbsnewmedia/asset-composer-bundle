@@ -1,7 +1,5 @@
 <?php
 
-// tests/Integration/BundleIntegrationTest.php
-
 declare(strict_types=1);
 
 namespace JBSNewMedia\AssetComposerBundle\Tests\Integration;
@@ -63,7 +61,6 @@ final class BundleIntegrationTest extends TestCase
         $filesystem = new Filesystem();
 
         try {
-            // Setup
             $filesystem->mkdir($projectDir.'/config/routes');
             $existingContent = "existing_route:\n    path: /test";
             $filesystem->dumpFile($projectDir.'/config/routes/asset_composer.yaml', $existingContent);
@@ -73,7 +70,6 @@ final class BundleIntegrationTest extends TestCase
 
             $extension = new AssetComposerExtension();
 
-            // Should not overwrite existing file
             $extension->prepend($container);
 
             $content = file_get_contents($projectDir.'/config/routes/asset_composer.yaml');

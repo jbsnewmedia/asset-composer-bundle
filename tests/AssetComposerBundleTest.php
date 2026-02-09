@@ -31,4 +31,16 @@ class AssetComposerBundleTest extends TestCase
 
         $this->assertSame($extension1, $extension2);
     }
+
+    #[Test]
+    public function getContainerExtensionReturnsNullWhenDisabled(): void
+    {
+        $bundle = new AssetComposerBundle();
+
+        $ref = new \ReflectionProperty($bundle, 'extension');
+        $ref->setAccessible(true);
+        $ref->setValue($bundle, false);
+
+        $this->assertNull($bundle->getContainerExtension());
+    }
 }

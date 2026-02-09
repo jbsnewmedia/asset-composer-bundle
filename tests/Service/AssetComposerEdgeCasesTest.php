@@ -1,7 +1,5 @@
 <?php
 
-// tests/Service/AssetComposerEdgeCasesTest.php - Vollständige korrigierte Version
-
 declare(strict_types=1);
 
 namespace JBSNewMedia\AssetComposerBundle\Tests\Service;
@@ -56,7 +54,6 @@ final class AssetComposerEdgeCasesTest extends TestCase
     #[Test]
     public function getAssetFileWithAppAssets(): void
     {
-        // Test app/assets namespace
         $this->filesystem->mkdir($this->projectDir.'/assets');
         file_put_contents($this->projectDir.'/assets/app.css', 'body { color: blue; }');
 
@@ -127,7 +124,6 @@ final class AssetComposerEdgeCasesTest extends TestCase
         $protectionContent = json_encode([
             'name' => 'test-package',
             'files' => ['allowed.css'],
-            // kein files-dev array und restricted.css nicht in files
         ]);
         file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', $protectionContent);
 
@@ -164,18 +160,15 @@ final class AssetComposerEdgeCasesTest extends TestCase
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Vendor directory traversal detected');
 
-        // Verwende ".." für Directory Traversal
         $this->assetComposer->getAssetFile('test', 'package', '../../../etc/passwd', 'some-version');
     }
 
     #[Test]
     public function getAssetFileWithValidFileButFailedMTime(): void
     {
-        // Korrigiert: Teste den tatsächlichen Fehlerfall
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Vendor directory not found');
 
-        // Test mit nicht-existierendem Vendor-Verzeichnis
         $this->assetComposer->getAssetFile('nonexistent', 'package', 'asset.css', 'some-version');
     }
 
@@ -190,20 +183,16 @@ final class AssetComposerEdgeCasesTest extends TestCase
             ['/vendor/']
         );
 
-        // Create the directory and file structure
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'body { color: red; }');
 
-        // Make the file unreadable to potentially trigger mtime failure
         chmod($this->projectDir.'/vendor/test/package/asset.css', 0000);
 
         $this->expectException(BadRequestHttpException::class);
-        // This could be either "Unable to get the file modification time" or "Unable to read the asset file"
 
         try {
             $assetComposerWithVendorPath->getAssetFile('test', 'package', 'asset.css', 'some-version');
         } finally {
-            // Restore permissions for cleanup
             chmod($this->projectDir.'/vendor/test/package/asset.css', 0644);
         }
     }
@@ -239,7 +228,6 @@ final class AssetComposerEdgeCasesTest extends TestCase
             ['/vendor/']
         );
 
-        // Erstelle vollständige Struktur aber verwende nicht-existierende Datei
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
 
         $this->expectException(BadRequestHttpException::class);
@@ -251,7 +239,6 @@ final class AssetComposerEdgeCasesTest extends TestCase
     #[Test]
     public function getAssetFileNameWithFileNotFoundInPaths(): void
     {
-        // Teste getAssetFileName wenn die Datei in keinem der konfigurierten Pfade gefunden wird
         $assetComposerWithPaths = new AssetComposer(
             $this->projectDir,
             $this->router,
@@ -269,7 +256,6 @@ final class AssetComposerEdgeCasesTest extends TestCase
     #[Test]
     public function getAssetFileNameWithActualMTimeFailureForAppAssets(): void
     {
-        // Test mit korrekter Erwartung
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Asset file not found: assets/temp.css');
 

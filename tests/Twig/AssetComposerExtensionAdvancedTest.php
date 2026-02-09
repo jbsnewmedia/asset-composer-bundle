@@ -1,7 +1,5 @@
 <?php
 
-// tests/Twig/AssetComposerExtensionAdvancedTest.php
-
 declare(strict_types=1);
 
 namespace JBSNewMedia\AssetComposerBundle\Tests\Twig;
@@ -77,18 +75,30 @@ class AssetComposerExtensionAdvancedTest extends TestCase
             ->method('getAssetFileName')
             ->willReturn('/assets/style.css?v=123');
 
-        // Add asset
         $this->twigExtension->addAssetComposer('test/style.css', 'top');
 
-        // Verify it's there
         $result = $this->twigExtension->renderStylesheets('top');
         $this->assertStringContainsString('<link rel="stylesheet"', (string) $result);
 
-        // Remove asset
         $this->twigExtension->removeAssetComposer('test/style.css', 'top');
 
-        // Verify it's gone
         $result = $this->twigExtension->renderStylesheets('top');
+        $this->assertEquals('', (string) $result);
+    }
+
+    #[Test]
+    public function addAndRemoveJsAsset(): void
+    {
+        $this->assetComposer
+            ->method('getAssetFileName')
+            ->willReturn('/assets/app.js?v=123');
+
+        $this->twigExtension->addAssetComposer('pkg/app.js', 'bottom');
+        $result = $this->twigExtension->renderJavascripts('bottom');
+        $this->assertStringContainsString('<script', (string) $result);
+
+        $this->twigExtension->removeAssetComposer('pkg/app.js', 'bottom');
+        $result = $this->twigExtension->renderJavascripts('bottom');
         $this->assertEquals('', (string) $result);
     }
 
@@ -104,7 +114,6 @@ class AssetComposerExtensionAdvancedTest extends TestCase
         $result = $this->twigExtension->renderStylesheets();
         $content = (string) $result;
 
-        // Should be properly escaped
         $this->assertStringContainsString('&amp;param=&quot;test&quot;', $content);
         $this->assertStringNotContainsString('&param="test"', $content);
     }

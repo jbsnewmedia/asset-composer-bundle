@@ -16,10 +16,10 @@ class AssetComposerBundle extends AbstractBundle
             $this->extension = new AssetComposerExtension();
         }
 
-        if (false === $this->extension) {
-            return null;
+        if ($this->extension instanceof ExtensionInterface) {
+            return $this->extension;
         }
 
-        return $this->extension;
+        return null;
     }
 }
