@@ -12,6 +12,7 @@ All commands should be executed within the Docker container.
 - **Run PHPUnit tests:**
   `docker exec asset-composer-bundle-web-1 composer test`
 - **Goal:** Maintain 100% code coverage.
+- **Strict Rule:** `@codeCoverageIgnore` must never be used. All code paths must be tested.
 
 ### Code Quality & Static Analysis
 - **PHPStan (Static Analysis):**

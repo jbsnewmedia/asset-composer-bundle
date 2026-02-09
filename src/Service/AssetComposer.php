@@ -149,10 +149,7 @@ class AssetComposer
             }
         }
 
-        $fileMTime = filemtime($vendorFile);
-        if (false === $fileMTime) {
-            throw new BadRequestHttpException('Unable to get the file modification time');
-        }
+        $fileMTime = (int) filemtime($vendorFile);
 
         $baseUrlPart = $namespace.'/'.$package.'/'.$asset;
         $vNew = md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
@@ -238,10 +235,7 @@ class AssetComposer
                 continue;
             }
 
-            $mtime = filemtime($resolvedFile);
-            if (false === $mtime) {
-                continue;
-            }
+            $mtime = (int) filemtime($resolvedFile);
 
             // baseUrlPartNew muss exakt dem Format entsprechen, das getAssetFileName() nutzt:
             // - vendor: <namespace>/<package>/<...>
@@ -335,10 +329,7 @@ class AssetComposer
             'asset' => $assetPath,
         ], $referenceType);
 
-        $fileMTime = filemtime($vendorFile);
-        if (false === $fileMTime) {
-            throw new BadRequestHttpException('Unable to get the file modification time');
-        }
+        $fileMTime = (int) filemtime($vendorFile);
 
         return $baseUrl.'?v='.md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
     }
