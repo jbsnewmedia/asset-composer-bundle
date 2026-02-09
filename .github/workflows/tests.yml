@@ -1,27 +1,23 @@
-name: CI
+name: Tests
 
 on:
     push:
-        branches: [ main, develop, feature/* ]
+        branches: [ "main", "develop" ]
     pull_request:
-        branches: [ main, develop ]
-
-env:
-    PHP_VERSION: '8.1'
+        branches: [ "main", "develop" ]
 
 jobs:
-    ci:
-        name: Code Quality & Tests
+    tests:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout
+            - name: Checkout code
               uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: ${{ env.PHP_VERSION }}
+                  php-version: '8.1'
                   extensions: mbstring, xml, ctype, iconv, intl, pdo, dom, filter, gd, json
                   tools: composer:v2
                   coverage: xdebug
@@ -45,25 +41,21 @@ jobs:
                   composer run bin-rector-install
                   composer run bin-phpunit-install
 
-            - name: 🔍 PHP CS Fixer (ECS)
+            - name: PHP CS Fixer (ECS)
               run: composer run bin-ecs
 
-            - name: 🔧 Rector Check
+            - name: Rector Check
               run: composer run bin-rector
 
-            - name: 📊 PHPStan Analysis
+            - name: PHPStan Analysis
               run: composer run bin-phpstan
 
-            - name: ✅ PHPUnit Tests
-              run: composer run bin-phpunit-no-coverage
-
-            - name: 📈 Generate Coverage Report
-              if: github.ref == 'refs/heads/main'
-              run: composer run bin-phpunit-coverage
+            - name: Run Tests with Coverage
+              run: vendor-bin/phpunit/vendor/bin/phpunit --configuration phpunit-coverage.xml.dist --coverage-clover var/coverage.xml
 
             - name: Upload coverage to Codecov
-              if: github.ref == 'refs/heads/main'
               uses: codecov/codecov-action@v4
               with:
-                  file: ./var/coverage.xml
-                  flags: unittests
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  files: ./var/coverage.xml
+                  fail_ci_if_error: true
