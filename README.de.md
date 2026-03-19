@@ -52,11 +52,36 @@ composer require avalynx/avalynx-alert
 
 ### 2. Assets in Twig-Templates registrieren
 
+#### Assets aus Composer-Paketen
+
 ```twig
 {% do addAssetComposer('twbs/bootstrap/dist/css/bootstrap.css') %}
 {% do addAssetComposer('components/font-awesome/css/all.css') %}
 {% do addAssetComposer('avalynx/avalynx-alert/dist/css/avalynx-alert.css') %}
 {% do addAssetComposer('avalynx/avalynx-alert/dist/js/avalynx-alert.js') %}
+```
+
+#### Lokale Assets
+
+Du kannst auch lokale Assets verwenden, die im Verzeichnis `assets/` Deines Projekts liegen. Nutze dafür den Namespace `app` und das Paket `assets`:
+
+```twig
+{% do addAssetComposer('app/assets/css/custom.css') %}
+{% do addAssetComposer('app/assets/js/custom.js') %}
+```
+
+Dabei müssen die Dateien lokal unter `%kernel.project_dir%/assets/css/custom.css` bzw. `%kernel.project_dir%/assets/js/custom.js` liegen.
+
+Beispielhafte Dateistruktur:
+```text
+your-project/
+├── assets/
+│   ├── css/
+│   │   └── custom.css
+│   └── js/
+│       └── custom.js
+├── composer.json
+└── ...
 ```
 
 ### 3. Im Layout ausgeben
