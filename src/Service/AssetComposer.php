@@ -260,6 +260,10 @@ class AssetComposer
 
     public function getAssetFileName(string $asset): string
     {
+        if (str_contains($asset, '..')) {
+            throw new BadRequestHttpException('Security violation: attempted directory traversal');
+        }
+
         $assetParts = explode('/', $asset);
         if (count($assetParts) < 3) {
             throw new BadRequestHttpException('Asset not found (invalid asset path)');
@@ -289,12 +293,10 @@ class AssetComposer
             }
 
             $realVendorFilePath = realpath($vendorFile);
-            $realProjectDir = realpath($this->projectDir);
 
             if (
                 false === $realVendorFilePath
-                || false === $realProjectDir
-                || !str_starts_with($realVendorFilePath, $realProjectDir)
+                || !str_starts_with(str_replace(DIRECTORY_SEPARATOR, '/', $vendorFile), rtrim((string) preg_replace('#/+#', '/', $this->projectDir), '/').'/')
             ) {
                 throw new BadRequestHttpException('Security violation: attempted directory traversal');
             }
