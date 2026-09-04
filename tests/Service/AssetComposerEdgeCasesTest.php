@@ -24,7 +24,7 @@ final class AssetComposerEdgeCasesTest extends TestCase
         $this->filesystem = new Filesystem();
         $this->filesystem->mkdir($this->projectDir);
 
-        $this->router = $this->createMock(UrlGeneratorInterface::class);
+        $this->router = $this->createStub(UrlGeneratorInterface::class);
         $this->router
             ->method('generate')
             ->willReturn('http://example.com/assetscomposer/test/package/asset.css');
@@ -93,6 +93,11 @@ final class AssetComposerEdgeCasesTest extends TestCase
         $this->filesystem->mkdir($this->projectDir.'/vendor/test/package');
         file_put_contents($this->projectDir.'/vendor/test/package/asset.css', 'content');
         chmod($this->projectDir.'/vendor/test/package/asset.css', 0000);
+
+        if (is_readable($this->projectDir.'/vendor/test/package/asset.css')) {
+            chmod($this->projectDir.'/vendor/test/package/asset.css', 0644);
+            $this->markTestSkipped('Running as privileged user, chmod 0000 has no effect.');
+        }
 
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Unable to read the asset file');

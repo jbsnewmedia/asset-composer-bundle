@@ -12,9 +12,7 @@ class AssetComposerBundle extends AbstractBundle
 {
     public function getContainerExtension(): ?ExtensionInterface
     {
-        if (null === $this->extension) {
-            $this->extension = new AssetComposerExtension();
-        }
+        $this->extension ??= new AssetComposerExtension();
 
         if ($this->extension instanceof ExtensionInterface) {
             return $this->extension;

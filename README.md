@@ -3,7 +3,7 @@
 [![Packagist Version](https://img.shields.io/packagist/v/jbsnewmedia/asset-composer-bundle)](https://packagist.org/packages/jbsnewmedia/asset-composer-bundle)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/jbsnewmedia/asset-composer-bundle)](https://packagist.org/packages/jbsnewmedia/asset-composer-bundle)
 [![PHP Version Require](https://img.shields.io/packagist/php-v/jbsnewmedia/asset-composer-bundle)](https://packagist.org/packages/jbsnewmedia/asset-composer-bundle)
-[![Symfony Version](https://img.shields.io/badge/symfony-%5E6.4%20%7C%20%5E7.0-673ab7?logo=symfony)](https://symfony.com)
+[![Symfony Version](https://img.shields.io/badge/symfony-%5E6.4%20%7C%20%5E7.0%20%7C%20%5E8.0-673ab7?logo=symfony)](https://symfony.com)
 [![License](https://img.shields.io/packagist/l/jbsnewmedia/asset-composer-bundle)](https://packagist.org/packages/jbsnewmedia/asset-composer-bundle)
 [![Tests](https://github.com/jbsnewmedia/asset-composer-bundle/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/jbsnewmedia/asset-composer-bundle/actions/workflows/tests.yml)
 [![PHP CS Fixer](https://img.shields.io/badge/php--cs--fixer-checked-brightgreen)](https://github.com/jbsnewmedia/asset-composer-bundle/actions/workflows/tests.yml)
@@ -19,14 +19,14 @@
 - Automatic versioning using file timestamps
 - Simple integration with Twig templates
 - Supports production/dev-only assets via `assetcomposer.json`
-- Symfony 6 & 7 compatible
+- Symfony 6, 7 & 8 compatible
 
 ---
 
 ## ⚙️ Requirements
 
-- PHP 8.1 or higher
-- Symfony Framework 6.4 or 7.0
+- PHP 8.4 or higher
+- Symfony Framework 6.4, 7.0 or 8.0
 
 ---
 

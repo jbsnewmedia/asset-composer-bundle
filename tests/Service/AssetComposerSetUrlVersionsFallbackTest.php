@@ -23,7 +23,7 @@ final class AssetComposerSetUrlVersionsFallbackTest extends TestCase
         $this->filesystem = new Filesystem();
         $this->filesystem->mkdir($this->projectDir);
 
-        $this->router = $this->createMock(UrlGeneratorInterface::class);
+        $this->router = $this->createStub(UrlGeneratorInterface::class);
 
         $this->assetComposer = new AssetComposer(
             $this->projectDir,

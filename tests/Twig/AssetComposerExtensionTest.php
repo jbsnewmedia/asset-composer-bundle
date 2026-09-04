@@ -18,7 +18,7 @@ class AssetComposerExtensionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->assetComposer = $this->createMock(AssetComposer::class);
+        $this->assetComposer = $this->createStub(AssetComposer::class);
         $this->twigExtension = new AssetComposerExtension($this->assetComposer);
     }
 
@@ -48,14 +48,17 @@ class AssetComposerExtensionTest extends TestCase
     #[Test]
     public function addAssetComposerWithCss(): void
     {
-        $this->assetComposer
+        $assetComposer = $this->createMock(AssetComposer::class);
+        $assetComposer
+            ->expects($this->once())
             ->method('getAssetFileName')
             ->with('test/package/style.css')
             ->willReturn('/assets/style.css?v=123');
+        $twigExtension = new AssetComposerExtension($assetComposer);
 
-        $this->twigExtension->addAssetComposer('test/package/style.css', 'top');
+        $twigExtension->addAssetComposer('test/package/style.css', 'top');
 
-        $result = $this->twigExtension->renderStylesheets('top');
+        $result = $twigExtension->renderStylesheets('top');
 
         $this->assertInstanceOf(Markup::class, $result);
         $this->assertStringContainsString('<link rel="stylesheet"', (string) $result);
@@ -65,14 +68,17 @@ class AssetComposerExtensionTest extends TestCase
     #[Test]
     public function addAssetComposerWithJs(): void
     {
-        $this->assetComposer
+        $assetComposer = $this->createMock(AssetComposer::class);
+        $assetComposer
+            ->expects($this->once())
             ->method('getAssetFileName')
             ->with('test/package/script.js')
             ->willReturn('/assets/script.js?v=456');
+        $twigExtension = new AssetComposerExtension($assetComposer);
 
-        $this->twigExtension->addAssetComposer('test/package/script.js', 'bottom');
+        $twigExtension->addAssetComposer('test/package/script.js', 'bottom');
 
-        $result = $this->twigExtension->renderJavascripts('bottom');
+        $result = $twigExtension->renderJavascripts('bottom');
 
         $this->assertInstanceOf(Markup::class, $result);
         $this->assertStringContainsString('<script src=', (string) $result);
@@ -132,13 +138,15 @@ class AssetComposerExtensionTest extends TestCase
     #[Test]
     public function getAssetComposerFile(): void
     {
-        $this->assetComposer
+        $assetComposer = $this->createMock(AssetComposer::class);
+        $assetComposer
             ->expects($this->once())
             ->method('getAssetFileName')
             ->with('test/package/asset.css')
             ->willReturn('/assets/asset.css?v=abc123');
+        $twigExtension = new AssetComposerExtension($assetComposer);
 
-        $result = $this->twigExtension->getAssetComposerFile('test/package/asset.css');
+        $result = $twigExtension->getAssetComposerFile('test/package/asset.css');
 
         $this->assertEquals('/assets/asset.css?v=abc123', $result);
     }

@@ -23,7 +23,7 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
         $this->fs = new Filesystem();
         $this->fs->mkdir($this->projectDir.'/vendor/test/package');
 
-        $this->router = $this->createMock(UrlGeneratorInterface::class);
+        $this->router = $this->createStub(UrlGeneratorInterface::class);
         $this->router->method('generate')->willReturn('/ac/test/package/file.css');
     }
 
@@ -79,6 +79,27 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
         $this->expectExceptionMessage('Security violation: attempted directory traversal');
 
         $service->getAssetFileName('test/package/evil.css');
+    }
+
+    #[Test]
+    public function getAssetFileNameThrowsOnSymlinkTraversalForAppAssets(): void
+    {
+        $outsideDir = sys_get_temp_dir().'/outside-'.uniqid();
+        $this->fs->mkdir($outsideDir);
+        file_put_contents($outsideDir.'/outside.css', 'body{}');
+
+        $assetsDir = $this->projectDir.'/assets';
+        $this->fs->mkdir($assetsDir);
+        $symlinkPath = $assetsDir.'/evil.css';
+        @symlink($outsideDir.'/outside.css', $symlinkPath);
+        $this->assertTrue(is_link($symlinkPath) || file_exists($symlinkPath));
+
+        $service = $this->createService('dev');
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('Security violation: attempted directory traversal');
+
+        $service->getAssetFileName('app/assets/evil.css');
     }
 
     #[Test]

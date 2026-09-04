@@ -6,6 +6,7 @@ namespace JBSNewMedia\AssetComposerBundle\Tests\Controller;
 
 use JBSNewMedia\AssetComposerBundle\Controller\AssetComposerController;
 use JBSNewMedia\AssetComposerBundle\Service\AssetComposer;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +22,7 @@ class AssetComposerControllerTest extends TestCase
         $this->controller = new AssetComposerController($this->assetComposer);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCanBeInstantiated(): void
     {
         $this->assertInstanceOf(AssetComposerController::class, $this->controller);

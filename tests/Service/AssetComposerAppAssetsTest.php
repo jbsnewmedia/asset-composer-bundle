@@ -33,7 +33,7 @@ final class AssetComposerAppAssetsTest extends TestCase
         file_put_contents($cssPath, $cssContent);
         file_put_contents($iconPath, '<svg></svg>');
 
-        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturn('/assets/style.css');
 
         $assetComposer = new AssetComposer(

@@ -24,11 +24,10 @@ final class AssetComposerAdvancedTest extends TestCase
         $this->filesystem = new Filesystem();
         $this->filesystem->mkdir($this->projectDir);
 
-        $this->router = $this->createMock(UrlGeneratorInterface::class);
+        $this->router = $this->createStub(UrlGeneratorInterface::class);
 
         $this->router
             ->method('generate')
-            ->with('jbs_new_media_assets_composer', $this->anything(), $this->anything())
             ->willReturnCallback(function ($route, $params) {
                 return sprintf('/assetscomposer/%s/%s/%s',
                     $params['namespace'],
@@ -156,7 +155,7 @@ final class AssetComposerAdvancedTest extends TestCase
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->expectExceptionMessage('Asset not found: ../../../etc/passwd');
+        $this->expectExceptionMessage('Security violation: attempted directory traversal');
 
         $this->assetComposer->getAssetFileName('../../../etc/passwd');
     }
@@ -273,6 +272,11 @@ final class AssetComposerAdvancedTest extends TestCase
 
         file_put_contents($this->projectDir.'/vendor/test/package/assetscomposer.json', '{"test": true}');
         chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0000);
+
+        if (is_readable($this->projectDir.'/vendor/test/package/assetscomposer.json')) {
+            chmod($this->projectDir.'/vendor/test/package/assetscomposer.json', 0644);
+            $this->markTestSkipped('Running as privileged user, chmod 0000 has no effect.');
+        }
 
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Unable to read the asset composer file');

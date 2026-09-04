@@ -291,20 +291,13 @@ class AssetComposer
             if (!$found) {
                 throw new BadRequestHttpException('Asset not found: '.$asset);
             }
-
-            $realVendorFilePath = realpath($vendorFile);
-
-            if (
-                false === $realVendorFilePath
-                || !str_starts_with(str_replace(DIRECTORY_SEPARATOR, '/', $vendorFile), rtrim((string) preg_replace('#/+#', '/', $this->projectDir), '/').'/')
-            ) {
-                throw new BadRequestHttpException('Security violation: attempted directory traversal');
-            }
         }
 
         if (!is_file($vendorFile)) {
             throw new BadRequestHttpException('Asset file not found: '.str_replace(rtrim($this->projectDir, '/').'/', '', $vendorFile));
         }
+
+        $this->assertFileInsideProjectDir($vendorFile);
 
         $baseUrlPart = $namespace.'/'.$package.'/'.$assetPath;
         $referenceType = $this->useRelativePath
@@ -320,5 +313,22 @@ class AssetComposer
         $fileMTime = (int) filemtime($vendorFile);
 
         return $baseUrl.'?v='.md5($baseUrlPart.'#'.$this->appSecret.'#'.(string) $fileMTime);
+    }
+
+    private function assertFileInsideProjectDir(string $vendorFile): void
+    {
+        $realVendorFilePath = realpath($vendorFile);
+        $realProjectDir = realpath($this->projectDir);
+
+        if (
+            false === $realVendorFilePath
+            || false === $realProjectDir
+            || !str_starts_with(
+                str_replace(DIRECTORY_SEPARATOR, '/', $realVendorFilePath),
+                rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $realProjectDir), '/').'/'
+            )
+        ) {
+            throw new BadRequestHttpException('Security violation: attempted directory traversal');
+        }
     }
 }

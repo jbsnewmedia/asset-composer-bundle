@@ -27,7 +27,7 @@ final class AssetComposerTest extends TestCase
         $filesystem = new Filesystem();
         $filesystem->mirror($this->fixturesDir, $this->projectDir);
 
-        $this->router = $this->createMock(UrlGeneratorInterface::class);
+        $this->router = $this->createStub(UrlGeneratorInterface::class);
 
         $this->assetComposer = new AssetComposer(
             $this->projectDir,

@@ -17,7 +17,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.1'
+                  php-version: '8.4'
                   extensions: mbstring, xml, ctype, iconv, intl, pdo, dom, filter, gd, json
                   tools: composer:v2
                   coverage: xdebug
@@ -51,7 +51,7 @@ jobs:
               run: composer run bin-phpstan
 
             - name: Run Tests with Coverage
-              run: vendor-bin/phpunit/vendor/bin/phpunit --configuration phpunit-coverage.xml.dist --coverage-clover var/coverage.xml
+              run: XDEBUG_MODE=coverage vendor-bin/phpunit/vendor/bin/phpunit --configuration phpunit-coverage.xml.dist --coverage-clover var/coverage.xml
 
             - name: Upload coverage to Codecov
               uses: codecov/codecov-action@v4

@@ -17,7 +17,7 @@ class AssetComposerExtensionAdvancedTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->assetComposer = $this->createMock(AssetComposer::class);
+        $this->assetComposer = $this->createStub(AssetComposer::class);
         $this->twigExtension = new AssetComposerExtension($this->assetComposer);
     }
 
@@ -56,16 +56,18 @@ class AssetComposerExtensionAdvancedTest extends TestCase
     #[Test]
     public function getAssetComposerFileHandlesServiceException(): void
     {
-        $this->assetComposer
+        $assetComposer = $this->createMock(AssetComposer::class);
+        $assetComposer
             ->expects($this->once())
             ->method('getAssetFileName')
             ->with('test/package/nonexistent.css')
             ->willThrowException(new BadRequestHttpException('Asset not found'));
+        $twigExtension = new AssetComposerExtension($assetComposer);
 
         $this->expectException(BadRequestHttpException::class);
         $this->expectExceptionMessage('Asset not found');
 
-        $this->twigExtension->getAssetComposerFile('test/package/nonexistent.css');
+        $twigExtension->getAssetComposerFile('test/package/nonexistent.css');
     }
 
     #[Test]
