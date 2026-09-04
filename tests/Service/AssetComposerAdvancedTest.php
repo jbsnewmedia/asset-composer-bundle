@@ -156,7 +156,7 @@ final class AssetComposerAdvancedTest extends TestCase
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->expectExceptionMessage('Asset not found: ../../../etc/passwd');
+        $this->expectExceptionMessage('Security violation: attempted directory traversal');
 
         $this->assetComposer->getAssetFileName('../../../etc/passwd');
     }

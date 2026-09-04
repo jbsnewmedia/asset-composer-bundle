@@ -61,7 +61,7 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
     }
 
     #[Test]
-    public function getAssetFileNameThrowsOnSymlinkTraversal(): void
+    public function getAssetFileNameSupportsSymlinkedVendorFiles(): void
     {
         $outsideDir = sys_get_temp_dir().'/outside-'.uniqid();
         $this->fs->mkdir($outsideDir);
@@ -75,10 +75,10 @@ final class AssetComposerSecurityAndValidationTest extends TestCase
 
         $service = $this->createService('dev');
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('Security violation: attempted directory traversal');
+        $result = $service->getAssetFileName('test/package/evil.css');
 
-        $service->getAssetFileName('test/package/evil.css');
+        $this->assertStringContainsString('/ac/test/package/', $result);
+        $this->assertStringContainsString('?v=', $result);
     }
 
     #[Test]

@@ -15,7 +15,7 @@ return RectorConfig::configure()
     ->withPhpSets(php81: true)
 
     ->withSets([
-        SymfonySetList::SYMFONY_64,
+        SymfonySetList::COMPOSER_BASED,
         SymfonySetList::SYMFONY_CODE_QUALITY,
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
     ])
